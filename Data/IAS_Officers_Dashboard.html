@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IAS Officers of India - Live Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="dashboard_summary.js"></script>
+<script src="officers_data.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#070b1a;--card:#0f1629;--card2:#151d35;--border:#1e2a4a;
+  --text:#e0e4ef;--text2:#8892b0;--accent:#FF9933;--green:#22c55e;
+  --blue:#3b82f6;--chakra:#000080;--red:#ef4444;--purple:#a855f7;
+  --saffron:#FF9933;--white:#FFFFFF;--indian-green:#138808;
+  --glow:0 0 20px rgba(255,153,51,0.15);
+}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh}
+a{color:var(--accent);text-decoration:none}
+
+/* Header */
+.header{background:linear-gradient(135deg,#0a1128 0%,#1a1a3e 50%,#0a1128 100%);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px)}
+.header-left{display:flex;align-items:center;gap:16px}
+.emblem{width:48px;height:48px;display:flex;align-items:center;justify-content:center}
+.emblem svg{width:40px;height:40px}
+.header h1{font-size:22px;font-weight:700;background:linear-gradient(135deg,var(--saffron),var(--white),var(--indian-green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:0.5px}
+.header .subtitle{font-size:12px;color:var(--text2);margin-top:2px;letter-spacing:1px}
+.tri-stripe{height:3px;display:flex;width:100%}
+.tri-stripe div{flex:1}
+.tri-stripe .s1{background:var(--saffron)}
+.tri-stripe .s2{background:var(--white)}
+.tri-stripe .s3{background:var(--indian-green)}
+
+/* Tabs */
+.tab-nav{display:flex;gap:4px;padding:12px 32px;background:var(--bg);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.tab-btn{padding:10px 24px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text2);cursor:pointer;font-size:14px;font-weight:500;transition:all 0.3s;display:flex;align-items:center;gap:8px}
+.tab-btn:hover{background:var(--card);color:var(--text);border-color:var(--accent)}
+.tab-btn.active{background:linear-gradient(135deg,rgba(255,153,51,0.15),rgba(255,153,51,0.05));color:var(--accent);border-color:var(--accent);box-shadow:var(--glow)}
+.tab-icon{font-size:16px}
+.tab-content{display:none;padding:24px 32px;animation:fadeIn 0.4s ease}
+.tab-content.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* Cards */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden;transition:transform 0.3s,box-shadow 0.3s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--glow)}
+.stat-card .label{font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px}
+.stat-card .value{font-size:32px;font-weight:700;line-height:1}
+.stat-card .sub{font-size:12px;color:var(--text2);margin-top:6px}
+.stat-card .icon{position:absolute;top:16px;right:16px;font-size:28px;opacity:0.3}
+.stat-card.saffron .value{color:var(--saffron)}
+.stat-card.green .value{color:var(--green)}
+.stat-card.blue .value{color:var(--blue)}
+.stat-card.purple .value{color:var(--purple)}
+.stat-card.red .value{color:var(--red)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.stat-card.saffron::before{background:var(--saffron)}
+.stat-card.green::before{background:var(--green)}
+.stat-card.blue::before{background:var(--blue)}
+.stat-card.purple::before{background:var(--purple)}
+.stat-card.red::before{background:var(--red)}
+
+/* Chart containers */
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(450px,1fr));gap:20px;margin-bottom:24px}
+.chart-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;min-height:340px}
+.chart-box h3{font-size:15px;font-weight:600;margin-bottom:4px;color:var(--text)}
+.chart-box .chart-sub{font-size:12px;color:var(--text2);margin-bottom:16px}
+.chart-box canvas{max-height:300px}
+.chart-full{grid-column:1/-1}
+
+/* India Map */
+.map-container{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px;position:relative}
+.map-container h3{font-size:18px;margin-bottom:16px}
+.map-svg-wrapper{display:flex;justify-content:center;align-items:center;position:relative}
+.map-svg-wrapper svg{max-width:600px;width:100%}
+.map-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:16px;justify-content:center}
+.map-legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
+.map-legend-item .dot{width:12px;height:12px;border-radius:50%}
+.map-tooltip{position:fixed;background:#1a2035;border:1px solid var(--accent);border-radius:8px;padding:12px 16px;font-size:13px;pointer-events:none;z-index:1000;display:none;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+.map-tooltip .tt-name{font-weight:700;color:var(--accent);margin-bottom:4px}
+.map-tooltip .tt-stat{color:var(--text2)}
+.map-tooltip .tt-stat span{color:var(--text);font-weight:600}
+.map-controls{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.map-controls label{font-size:13px;color:var(--text2)}
+.toggle-switch{position:relative;width:48px;height:24px;background:var(--border);border-radius:12px;cursor:pointer;transition:0.3s}
+.toggle-switch.on{background:var(--accent)}
+.toggle-switch::after{content:'';position:absolute;width:20px;height:20px;background:white;border-radius:50%;top:2px;left:2px;transition:0.3s}
+.toggle-switch.on::after{left:26px}
+
+/* Officers Table */
+.search-bar{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.search-bar input{flex:1;min-width:250px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;outline:none;transition:border-color 0.3s}
+.search-bar input:focus{border-color:var(--accent)}
+.search-bar select{padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;cursor:pointer;outline:none}
+.search-bar select:focus{border-color:var(--accent)}
+.results-count{font-size:13px;color:var(--text2);margin-bottom:12px}
+.officers-table{width:100%;border-collapse:collapse;font-size:13px}
+.officers-table th{text-align:left;padding:12px 10px;background:var(--card2);color:var(--text2);font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:1px;border-bottom:2px solid var(--border);cursor:pointer;user-select:none;white-space:nowrap}
+.officers-table th:hover{color:var(--accent)}
+.officers-table td{padding:10px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+.officers-table tr:hover td{background:rgba(255,153,51,0.05)}
+.officers-table .name-cell{font-weight:600;color:var(--accent);cursor:pointer}
+.officers-table .name-cell:hover{text-decoration:underline}
+.badge{display:inline-block;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.badge-active{background:rgba(34,197,94,0.15);color:#22c55e}
+.badge-retired{background:rgba(239,68,68,0.15);color:#ef4444}
+.badge-male{background:rgba(59,130,246,0.15);color:#60a5fa}
+.badge-female{background:rgba(168,85,247,0.15);color:#c084fc}
+.pagination{display:flex;gap:8px;margin-top:16px;justify-content:center;align-items:center;flex-wrap:wrap}
+.page-btn{padding:8px 14px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--text2);cursor:pointer;font-size:13px;transition:all 0.2s}
+.page-btn:hover{background:var(--card);color:var(--text)}
+.page-btn.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
+.page-btn:disabled{opacity:0.3;cursor:not-allowed}
+.page-info{font-size:13px;color:var(--text2)}
+
+/* Profile Modal */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:200;display:none;justify-content:center;align-items:center;backdrop-filter:blur(4px)}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;max-width:600px;width:90%;max-height:85vh;overflow-y:auto;position:relative;animation:modalIn 0.3s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+.modal-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--text2);font-size:24px;cursor:pointer;z-index:10;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:0.2s}
+.modal-close:hover{background:var(--card2);color:var(--text)}
+.modal-header{padding:24px 24px 16px;border-bottom:1px solid var(--border)}
+.modal-header h2{font-size:20px;color:var(--accent)}
+.modal-header .modal-meta{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap}
+.modal-body{padding:20px 24px 24px}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.profile-item{padding:10px;background:var(--card2);border-radius:8px}
+.profile-item .pi-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
+.profile-item .pi-value{font-size:14px;font-weight:600;margin-top:4px}
+.profile-item.full{grid-column:1/-1}
+
+/* Insights */
+.insight-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px}
+.insight-card h3{font-size:16px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.insight-card .insight-sub{font-size:13px;color:var(--text2);margin-bottom:16px}
+.fun-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.fact-card{background:linear-gradient(135deg,var(--card2),var(--card));border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
+.fact-card .fact-emoji{font-size:36px;margin-bottom:8px}
+.fact-card .fact-title{font-size:13px;color:var(--text2);margin-bottom:4px}
+.fact-card .fact-value{font-size:22px;font-weight:700;color:var(--accent)}
+.fact-card .fact-desc{font-size:12px;color:var(--text2);margin-top:4px}
+
+/* Horizontal bar chart (CSS-based) */
+.hbar-chart{display:flex;flex-direction:column;gap:8px}
+.hbar-row{display:flex;align-items:center;gap:10px}
+.hbar-label{min-width:140px;font-size:12px;color:var(--text2);text-align:right;flex-shrink:0}
+.hbar-track{flex:1;height:24px;background:var(--bg);border-radius:4px;overflow:hidden;position:relative}
+.hbar-fill{height:100%;border-radius:4px;transition:width 1s ease;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:600;color:#000;min-width:30px}
+.hbar-val{font-size:12px;color:var(--text2);min-width:50px;text-align:right}
+
+/* Retirement wave */
+.wave-bar{display:flex;align-items:flex-end;gap:4px;height:200px;padding:0 8px}
+.wave-col{flex:1;min-width:28px;border-radius:4px 4px 0 0;position:relative;cursor:pointer;transition:all 0.3s}
+.wave-col:hover{opacity:0.85;transform:scaleY(1.02);transform-origin:bottom}
+.wave-col .wave-label{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--text2);white-space:nowrap}
+.wave-col .wave-val{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:600;color:var(--text)}
+
+/* Gender gap bars */
+.gap-row{display:flex;align-items:center;margin-bottom:6px;font-size:12px}
+.gap-label{width:130px;text-align:right;padding-right:10px;color:var(--text2);flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gap-bars{flex:1;display:flex;height:20px;border-radius:3px;overflow:hidden}
+.gap-male{background:var(--blue);transition:width 1s ease}
+.gap-female{background:var(--purple);transition:width 1s ease}
+.gap-pct{width:50px;text-align:left;padding-left:8px;color:var(--text2);font-size:11px}
+
+/* Responsive */
+@media(max-width:768px){
+  .header{padding:12px 16px}
+  .header h1{font-size:16px}
+  .tab-nav{padding:8px 16px}
+  .tab-btn{padding:8px 14px;font-size:12px}
+  .tab-content{padding:16px}
+  .charts-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .profile-grid{grid-template-columns:1fr}
+  .search-bar{flex-direction:column}
+  .search-bar input,.search-bar select{width:100%}
+}
+
+/* Career Predictor */
+.career-timeline{position:relative;padding-left:40px;margin:20px 0}
+.career-timeline::before{content:'';position:absolute;left:16px;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--accent),var(--green),var(--blue),var(--purple))}
+.ct-node{position:relative;padding:14px 20px;margin-bottom:16px;background:var(--card2);border:1px solid var(--border);border-radius:10px;transition:all 0.3s}
+.ct-node:hover{border-color:var(--accent);box-shadow:var(--glow)}
+.ct-node::before{content:'';position:absolute;left:-28px;top:18px;width:14px;height:14px;border-radius:50%;border:3px solid var(--accent);background:var(--bg)}
+.ct-node.current::before{background:var(--accent);box-shadow:0 0 12px var(--accent)}
+.ct-node.future::before{border-color:var(--green);background:var(--bg);border-style:dashed}
+.ct-node.future{border-style:dashed;border-color:rgba(34,197,94,0.4)}
+.ct-node .ct-level{font-size:14px;font-weight:700;color:var(--accent)}
+.ct-node.future .ct-level{color:var(--green)}
+.ct-node .ct-detail{font-size:12px;color:var(--text2);margin-top:4px}
+.ct-node .ct-prob{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;margin-top:6px}
+.ct-tag-past{background:rgba(59,130,246,0.15);color:#60a5fa}
+.ct-tag-current{background:rgba(255,153,51,0.2);color:var(--accent)}
+.ct-tag-future{background:rgba(34,197,94,0.15);color:#22c55e}
+.predictor-card{padding:12px 16px;background:var(--card2);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.2s;margin-bottom:6px}
+.predictor-card:hover{border-color:var(--accent);background:var(--card)}
+.predictor-card .pc-name{font-weight:600;color:var(--accent)}
+.predictor-card .pc-info{font-size:12px;color:var(--text2);margin-top:2px}
+.ladder-step{display:flex;align-items:center;gap:16px;margin-bottom:2px}
+.ladder-bar{height:40px;border-radius:6px;display:flex;align-items:center;padding:0 16px;font-size:13px;font-weight:600;color:#000;transition:width 1.5s ease;position:relative}
+.ladder-years{min-width:80px;text-align:right;font-size:12px;color:var(--text2)}
+.ladder-label{min-width:160px;font-size:13px;color:var(--text);text-align:right;padding-right:12px}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--text2)}
+
+/* Loader */
+.loader{display:flex;justify-content:center;align-items:center;height:200px}
+.loader-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Data source footer */
+.footer{text-align:center;padding:24px;color:var(--text2);font-size:12px;border-top:1px solid var(--border);margin-top:40px}
+.footer a{color:var(--accent)}
+</style>
+</head>
+<body>
+
+<!-- Tricolor stripe -->
+<div class="tri-stripe"><div class="s1"></div><div class="s2"></div><div class="s3"></div></div>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-left">
+    <div class="emblem">
+      <svg viewBox="0 0 100 100" fill="none">
+        <circle cx="50" cy="50" r="46" stroke="#FF9933" stroke-width="2"/>
+        <circle cx="50" cy="50" r="12" fill="none" stroke="#000080" stroke-width="2"/>
+        <g stroke="#000080" stroke-width="1.5">
+          <line x1="50" y1="8" x2="50" y2="38"/><line x1="50" y1="62" x2="50" y2="92"/>
+          <line x1="8" y1="50" x2="38" y2="50"/><line x1="62" y1="50" x2="92" y2="50"/>
+          <line x1="20" y1="20" x2="40" y2="40"/><line x1="60" y1="60" x2="80" y2="80"/>
+          <line x1="80" y1="20" x2="60" y2="40"/><line x1="40" y1="60" x2="20" y2="80"/>
+          <line x1="35" y1="12" x2="42" y2="39"/><line x1="58" y1="61" x2="65" y2="88"/>
+          <line x1="12" y1="35" x2="39" y2="42"/><line x1="61" y1="58" x2="88" y2="65"/>
+          <line x1="65" y1="12" x2="58" y2="39"/><line x1="42" y1="61" x2="35" y2="88"/>
+          <line x1="88" y1="35" x2="61" y2="42"/><line x1="39" y1="58" x2="12" y2="65"/>
+          <line x1="14" y1="27" x2="40" y2="41"/><line x1="60" y1="59" x2="86" y2="73"/>
+          <line x1="27" y1="14" x2="41" y2="40"/><line x1="59" y1="60" x2="73" y2="86"/>
+          <line x1="73" y1="14" x2="59" y2="40"/><line x1="41" y1="60" x2="27" y2="86"/>
+          <line x1="86" y1="27" x2="60" y2="41"/><line x1="40" y1="59" x2="14" y2="73"/>
+        </g>
+        <circle cx="50" cy="50" r="5" fill="#000080"/>
+      </svg>
+    </div>
+    <div>
+      <h1>Indian Administrative Service</h1>
+      <div class="subtitle">OFFICERS INTELLIGENCE DASHBOARD &bull; 1951 &ndash; 2020</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px">
+    <span style="font-size:12px;color:var(--text2)" id="last-updated"></span>
+  </div>
+</header>
+
+<!-- Tab Navigation -->
+<nav class="tab-nav">
+  <button class="tab-btn active" data-tab="overview"><span class="tab-icon">&#9670;</span> Overview</button>
+  <button class="tab-btn" data-tab="map"><span class="tab-icon">&#9737;</span> India Map</button>
+  <button class="tab-btn" data-tab="analytics"><span class="tab-icon">&#9635;</span> Analytics</button>
+  <button class="tab-btn" data-tab="officers"><span class="tab-icon">&#9783;</span> Officers Directory</button>
+  <button class="tab-btn" data-tab="predictor"><span class="tab-icon">&#9889;</span> Career Predictor</button>
+  <button class="tab-btn" data-tab="insights"><span class="tab-icon">&#9733;</span> Insights & Surprises</button>
+</nav>
+
+<!-- ==================== TAB 1: OVERVIEW ==================== -->
+<div class="tab-content active" id="tab-overview">
+  <div class="stats-grid" id="summary-cards"></div>
+
+  <div class="charts-grid">
+    <div class="chart-box chart-full">
+      <h3>IAS Officer Intake Over 7 Decades</h3>
+      <div class="chart-sub">Number of officers allotted each year (1951-2020)</div>
+      <canvas id="chart-intake"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Recruitment Pathway</h3>
+      <div class="chart-sub">How officers enter the IAS</div>
+      <canvas id="chart-recruit"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Career Level Distribution</h3>
+      <div class="chart-sub">Last recorded seniority level of all officers</div>
+      <canvas id="chart-levels"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB 2: INDIA MAP ==================== -->
+<div class="tab-content" id="tab-map">
+  <div class="map-container">
+    <h3>Cadre-wise Officer Distribution Across India</h3>
+    <div class="map-controls">
+      <label>Show:</label>
+      <select id="map-mode" style="padding:6px 10px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px">
+        <option value="total">All Officers</option>
+        <option value="active">Active Officers Only</option>
+        <option value="female">Female Officers</option>
+      </select>
+    </div>
+    <div class="map-svg-wrapper">
+      <svg id="india-map" viewBox="0 0 650 750" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+    <div class="map-legend">
+      <div class="map-legend-item"><div class="dot" style="background:#FF993333"></div> &lt; 200</div>
+      <div class="map-legend-item"><div class="dot" style="background:#FF993366"></div> 200-400</div>
+      <div class="map-legend-item"><div class="dot" style="background:#FF993399"></div> 400-600</div>
+      <div class="map-legend-item"><div class="dot" style="background:#FF9933CC"></div> 600-900</div>
+      <div class="map-legend-item"><div class="dot" style="background:#FF9933"></div> 900+</div>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-box chart-full">
+      <h3>Officers by Cadre</h3>
+      <div class="chart-sub">Total officers allocated to each cadre (all time)</div>
+      <canvas id="chart-cadre-bar"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB 3: ANALYTICS ==================== -->
+<div class="tab-content" id="tab-analytics">
+  <div class="charts-grid">
+    <div class="chart-box chart-full">
+      <h3>Gender Diversity Evolution</h3>
+      <div class="chart-sub">Male vs Female officer intake by decade &mdash; a story of slow but steady change</div>
+      <canvas id="chart-gender-decade"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Education Qualifications</h3>
+      <div class="chart-sub">Last recorded academic qualification</div>
+      <canvas id="chart-education"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Top Education Subjects</h3>
+      <div class="chart-sub">Most popular academic backgrounds</div>
+      <canvas id="chart-subjects"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Fields of Experience</h3>
+      <div class="chart-sub">What domains IAS officers work in</div>
+      <canvas id="chart-fields"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Mother Tongue Distribution</h3>
+      <div class="chart-sub">Linguistic diversity of IAS officers</div>
+      <canvas id="chart-languages"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB 4: OFFICERS DIRECTORY ==================== -->
+<div class="tab-content" id="tab-officers">
+  <div class="search-bar">
+    <input type="text" id="search-input" placeholder="Search by name, ID, office, designation...">
+    <select id="filter-cadre"><option value="">All Cadres</option></select>
+    <select id="filter-gender"><option value="">All Genders</option><option value="Male">Male</option><option value="Female">Female</option></select>
+    <select id="filter-status"><option value="">All Status</option><option value="active">Active</option><option value="retired">Retired</option></select>
+    <select id="filter-level"><option value="">All Levels</option></select>
+    <select id="filter-source"><option value="">All Sources</option></select>
+  </div>
+  <div class="results-count" id="results-count"></div>
+  <div style="overflow-x:auto">
+    <table class="officers-table">
+      <thead>
+        <tr>
+          <th data-sort="n">Name &#9650;&#9660;</th>
+          <th data-sort="c">Cadre &#9650;&#9660;</th>
+          <th data-sort="y">Year &#9650;&#9660;</th>
+          <th data-sort="g">Gender</th>
+          <th data-sort="r">Status</th>
+          <th data-sort="d">Last Designation</th>
+          <th data-sort="l">Level</th>
+          <th data-sort="o">Last Office</th>
+        </tr>
+      </thead>
+      <tbody id="officers-tbody"></tbody>
+    </table>
+  </div>
+  <div class="pagination" id="pagination"></div>
+</div>
+
+<!-- ==================== TAB: CAREER PREDICTOR ==================== -->
+<div class="tab-content" id="tab-predictor">
+  <div class="insight-card">
+    <h3>&#9889; Future Posting Path Predictor</h3>
+    <div class="insight-sub">Select an active officer or search by name to see their predicted career trajectory based on historical patterns of 151,000+ postings</div>
+    <div class="search-bar" style="margin-top:16px">
+      <input type="text" id="predictor-search" placeholder="Type officer name to predict their future path...">
+    </div>
+    <div id="predictor-results" style="margin-top:8px"></div>
+    <div id="predictor-output" style="margin-top:20px"></div>
+  </div>
+
+  <div class="insight-card">
+    <h3>&#128736; Career Progression Model</h3>
+    <div class="insight-sub">Typical IAS career ladder with median time at each level (based on historical data)</div>
+    <div id="career-ladder" style="margin-top:20px"></div>
+  </div>
+
+  <div class="insight-card">
+    <h3>&#127919; Probable Department Rotations</h3>
+    <div class="insight-sub">Most common department transitions at each career level</div>
+    <canvas id="chart-dept-flow" style="max-height:400px"></canvas>
+  </div>
+</div>
+
+<!-- ==================== TAB 5: INSIGHTS ==================== -->
+<div class="tab-content" id="tab-insights">
+  <!-- Fun Facts -->
+  <div class="insight-card">
+    <h3>&#9733; Quick Facts & Figures</h3>
+    <div class="insight-sub">Interesting numbers from 70 years of IAS data</div>
+    <div class="fun-facts" id="fun-facts"></div>
+  </div>
+
+  <!-- Retirement Wave -->
+  <div class="insight-card">
+    <h3>&#9200; Retirement Wave Forecast</h3>
+    <div class="insight-sub">Projected number of IAS officers retiring each year (based on age 60 superannuation)</div>
+    <div class="wave-bar" id="retirement-wave" style="margin-top:24px"></div>
+    <div style="height:30px"></div>
+  </div>
+
+  <!-- Gender Gap by Cadre -->
+  <div class="insight-card">
+    <h3>&#9792; Gender Gap Analysis by Cadre</h3>
+    <div class="insight-sub">Percentage of female officers in each cadre &mdash; highlighting regional disparities</div>
+    <div id="gender-gap-bars" style="margin-top:16px"></div>
+  </div>
+
+  <!-- Insider/Outsider -->
+  <div class="insight-card">
+    <h3>&#9873; Insider vs Outsider Allocation</h3>
+    <div class="insight-sub">What % of officers serve in their home state cadre vs being allocated elsewhere?</div>
+    <div id="insider-bars" style="margin-top:16px"></div>
+  </div>
+
+  <!-- Career Transitions -->
+  <div class="insight-card">
+    <h3>&#8634; Career Progression Pathways</h3>
+    <div class="insight-sub">Most common career level transitions across 151,000+ postings</div>
+    <canvas id="chart-transitions" style="max-height:400px"></canvas>
+  </div>
+
+  <!-- Power Centers -->
+  <div class="insight-card">
+    <h3>&#9878; Power Centers &mdash; Top Ministries & Offices</h3>
+    <div class="insight-sub">Where do IAS officers hold their last/senior-most posting?</div>
+    <div id="power-centers" style="margin-top:16px"></div>
+  </div>
+</div>
+
+<!-- Officer Profile Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" id="modal-close">&times;</button>
+    <div class="modal-header">
+      <h2 id="modal-name"></h2>
+      <div class="modal-meta" id="modal-meta"></div>
+    </div>
+    <div class="modal-body">
+      <div class="profile-grid" id="modal-profile"></div>
+      <div id="modal-career-path" style="margin-top:20px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Tooltip -->
+<div class="map-tooltip" id="tooltip"></div>
+
+<!-- Footer -->
+<div class="footer">
+  IAS Officers Intelligence Dashboard &bull; Dataset: 1951&ndash;2020
+  <br>Built for analytical purposes. Data may not reflect current real-time postings.
+</div>
+
+<script>
+// ===== INITIALIZATION =====
+const D = DASH_DATA;
+const O = OFFICERS;
+
+document.getElementById('last-updated').textContent = 'Dataset: 1951-2020 | ' + O.length.toLocaleString() + ' Officers';
+
+// ===== TAB NAVIGATION =====
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    // Trigger chart resize
+    window.dispatchEvent(new Event('resize'));
+  });
+});
+
+// ===== CHART DEFAULTS =====
+Chart.defaults.color = '#8892b0';
+Chart.defaults.borderColor = '#1e2a4a';
+Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+Chart.defaults.plugins.legend.labels.boxWidth = 14;
+Chart.defaults.plugins.legend.labels.padding = 16;
+
+const COLORS = {
+  saffron: '#FF9933', green: '#22c55e', blue: '#3b82f6', purple: '#a855f7',
+  red: '#ef4444', cyan: '#06b6d4', pink: '#ec4899', amber: '#f59e0b',
+  indigo: '#6366f1', teal: '#14b8a6', lime: '#84cc16', rose: '#f43f5e',
+  palette: ['#FF9933','#3b82f6','#22c55e','#a855f7','#ef4444','#06b6d4','#ec4899','#f59e0b','#6366f1','#14b8a6','#84cc16','#f43f5e','#0ea5e9','#d946ef','#facc15','#4ade80']
+};
+
+// ===== SUMMARY CARDS =====
+function renderSummaryCards() {
+  const s = D.summary;
+  const femalePct = ((s.female / s.total) * 100).toFixed(1);
+  const activePct = ((s.active / s.total) * 100).toFixed(1);
+
+  const cards = [
+    {label:'Total Officers', value:s.total.toLocaleString(), sub:`Spanning ${s.yearRange[0]}-${s.yearRange[1]}`, cls:'saffron', icon:'&#9783;'},
+    {label:'Active Officers', value:s.active.toLocaleString(), sub:`${activePct}% of total strength`, cls:'green', icon:'&#9679;'},
+    {label:'Retired Officers', value:s.retired.toLocaleString(), sub:'Superannuated / Voluntary', cls:'blue', icon:'&#9673;'},
+    {label:'Female Officers', value:s.female.toLocaleString(), sub:`${femalePct}% of total — growing`, cls:'purple', icon:'&#9792;'},
+    {label:'Cadres', value:s.cadres, sub:'Across all states & UTs', cls:'saffron', icon:'&#9737;'},
+    {label:'Decades of Service', value:'7+', sub:'Building the nation since 1951', cls:'green', icon:'&#9200;'}
+  ];
+
+  const html = cards.map(c => `
+    <div class="stat-card ${c.cls}">
+      <div class="icon">${c.icon}</div>
+      <div class="label">${c.label}</div>
+      <div class="value">${c.value}</div>
+      <div class="sub">${c.sub}</div>
+    </div>
+  `).join('');
+  document.getElementById('summary-cards').innerHTML = html;
+}
+
+// ===== INTAKE CHART =====
+function renderIntakeChart() {
+  const years = Object.keys(D.year_intake).map(Number);
+  const vals = Object.values(D.year_intake);
+
+  new Chart(document.getElementById('chart-intake'), {
+    type: 'line',
+    data: {
+      labels: years,
+      datasets: [{
+        label: 'Officers Allotted',
+        data: vals,
+        borderColor: COLORS.saffron,
+        backgroundColor: 'rgba(255,153,51,0.1)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 2,
+        pointHoverRadius: 6,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {display: false},
+        tooltip: {
+          callbacks: {
+            title: (items) => 'Year ' + items[0].label,
+            label: (item) => item.raw + ' officers allotted'
+          }
+        }
+      },
+      scales: {
+        x: {grid:{display:false}, ticks:{maxTicksLimit:20}},
+        y: {beginAtZero:true, grid:{color:'#1e2a4a33'}}
+      }
+    }
+  });
+}
+
+// ===== RECRUITMENT CHART =====
+function renderRecruitChart() {
+  const labels = Object.keys(D.recruitment).slice(0, 6);
+  const vals = Object.values(D.recruitment).slice(0, 6);
+
+  new Chart(document.getElementById('chart-recruit'), {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: vals,
+        backgroundColor: COLORS.palette.slice(0, 6),
+        borderWidth: 0,
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '55%',
+      plugins: {
+        legend: {position:'bottom', labels:{padding:12,font:{size:11}}}
+      }
+    }
+  });
+}
+
+// ===== LEVELS CHART =====
+function renderLevelsChart() {
+  const levelOrder = ['Junior Scale','Under Secretary','Deputy Secretary','Director','Joint Secretary','Additional Secretary','Secretary','Cabinet Secretary'];
+  const labels = []; const vals = [];
+  levelOrder.forEach(l => {
+    if (D.levels[l]) { labels.push(l); vals.push(D.levels[l]); }
+  });
+
+  new Chart(document.getElementById('chart-levels'), {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: vals,
+        backgroundColor: labels.map((_, i) => COLORS.palette[i % COLORS.palette.length]),
+        borderRadius: 4,
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true, indexAxis:'y',
+      plugins: {legend:{display:false}},
+      scales: {
+        x:{beginAtZero:true, grid:{color:'#1e2a4a33'}},
+        y:{grid:{display:false}}
+      }
+    }
+  });
+}
+
+// ===== INDIA MAP =====
+function renderMap() {
+  const statePos = {
+    'Jammu & Kashmir':[235,60,0],'Himachal Pradesh':[265,108,0],'Punjab':[228,140,0],
+    'Haryana':[255,168,0],'A G M U T':[278,158,0],'Uttarakhand':[305,122,0],
+    'Uttar Pradesh':[340,210,0],'Rajasthan':[195,235,0],'Gujarat':[148,320,0],
+    'Madhya Pradesh':[290,295,0],'Chhattisgarh':[350,340,0],'Bihar':[420,225,0],
+    'Jharkhand':[405,275,0],'West Bengal':[445,290,0],'Odisha':[395,350,0],
+    'Maharashtra':[230,380,0],'Telangana':[290,400,0],'Andhra Pradesh':[320,445,0],
+    'Karnataka':[235,450,0],'Tamil Nadu':[290,515,0],'Kerala':[240,525,0],
+    'Assam Meghalya':[515,220,0],'Manipur-Tripura':[540,265,0],'Manipur':[555,248,0],
+    'Nagaland':[555,215,0],'Sikkim':[465,195,0],'Tripura':[510,285,0]
+  };
+
+  const svg = document.getElementById('india-map');
+  const mode = document.getElementById('map-mode').value;
+
+  let dataSource;
+  if (mode === 'active') {
+    dataSource = D.cadre_active;
+  } else if (mode === 'female') {
+    dataSource = {};
+    const gc = D.gender_cadre;
+    Object.keys(gc).forEach(c => { dataSource[c] = gc[c].Female || 0; });
+  } else {
+    dataSource = D.cadre_counts;
+  }
+
+  const maxVal = Math.max(...Object.values(dataSource));
+
+  // Build SVG
+  let svgHTML = '';
+
+  // India outline (simplified)
+  svgHTML += '<path d="M230,40 L260,35 L280,45 L295,38 L310,55 L295,70 L310,85 L320,100 L310,115 L325,105 L345,115 L360,100 L375,110 L400,95 L440,100 L470,115 L490,130 L530,135 L555,155 L570,175 L575,195 L565,210 L575,230 L560,260 L545,280 L530,290 L520,310 L490,305 L470,290 L460,310 L445,330 L430,335 L425,355 L410,370 L395,365 L385,380 L370,385 L360,400 L345,395 L340,410 L325,420 L330,440 L320,460 L310,470 L305,495 L295,520 L285,540 L275,555 L265,550 L255,540 L250,520 L240,510 L230,525 L225,500 L215,470 L210,445 L205,420 L195,400 L185,380 L175,365 L160,355 L150,340 L140,320 L130,300 L125,280 L130,260 L140,245 L150,230 L165,220 L178,205 L190,195 L195,180 L205,165 L215,155 L220,140 L225,120 L220,100 L215,80 L220,60 Z" fill="#0d1830" stroke="#1e2a4a" stroke-width="1.5" opacity="0.6"/>';
+
+  // State bubbles
+  Object.entries(statePos).forEach(([state, pos]) => {
+    const val = dataSource[state] || 0;
+    const ratio = val / maxVal;
+    const r = 10 + ratio * 30;
+    const opacity = 0.3 + ratio * 0.7;
+    const color = mode === 'female' ? '#a855f7' : '#FF9933';
+
+    svgHTML += `<circle cx="${pos[0]}" cy="${pos[1]}" r="${r}" fill="${color}" opacity="${opacity}" stroke="${color}" stroke-width="1" class="map-bubble" data-state="${state}" data-val="${val}" style="cursor:pointer;transition:all 0.3s"/>`;
+
+    if (r > 18) {
+      svgHTML += `<text x="${pos[0]}" y="${pos[1]+4}" text-anchor="middle" fill="#000" font-size="10" font-weight="700" pointer-events="none">${val}</text>`;
+    }
+  });
+
+  // State labels
+  Object.entries(statePos).forEach(([state, pos]) => {
+    const shortName = state.replace('Himachal Pradesh','HP').replace('Uttar Pradesh','UP').replace('Madhya Pradesh','MP').replace('Andhra Pradesh','AP').replace('West Bengal','WB').replace('Tamil Nadu','TN').replace('Jammu & Kashmir','J&K').replace('Uttarakhand','UK').replace('Chhattisgarh','CG').replace('Jharkhand','JH').replace('Assam Meghalya','AS-ML').replace('Manipur-Tripura','MN-TR').replace('Himachal','HP').replace('A G M U T','AGMUT');
+    const val = dataSource[state] || 0;
+    const r = 10 + (val/maxVal) * 30;
+    svgHTML += `<text x="${pos[0]}" y="${pos[1]+r+14}" text-anchor="middle" fill="#8892b0" font-size="9" pointer-events="none">${shortName}</text>`;
+  });
+
+  svg.innerHTML = svgHTML;
+
+  // Bubble interactions
+  const tooltip = document.getElementById('tooltip');
+  svg.querySelectorAll('.map-bubble').forEach(bubble => {
+    bubble.addEventListener('mouseenter', (e) => {
+      const state = bubble.dataset.state;
+      const val = bubble.dataset.val;
+      const total = D.cadre_counts[state] || 0;
+      const active = D.cadre_active[state] || 0;
+      const gc = D.gender_cadre[state] || {};
+      tooltip.innerHTML = `
+        <div class="tt-name">${state}</div>
+        <div class="tt-stat">Total Officers: <span>${total}</span></div>
+        <div class="tt-stat">Active: <span>${active}</span></div>
+        <div class="tt-stat">Male: <span>${gc.Male||0}</span> | Female: <span>${gc.Female||0}</span></div>
+        <div class="tt-stat">Female %: <span>${((gc.Female||0)/total*100).toFixed(1)}%</span></div>
+      `;
+      tooltip.style.display = 'block';
+    });
+    bubble.addEventListener('mousemove', (e) => {
+      tooltip.style.left = (e.clientX + 16) + 'px';
+      tooltip.style.top = (e.clientY - 10) + 'px';
+    });
+    bubble.addEventListener('mouseleave', () => {
+      tooltip.style.display = 'none';
+    });
+  });
+}
+
+// ===== CADRE BAR CHART =====
+function renderCadreBar() {
+  const labels = Object.keys(D.cadre_counts);
+  const total = Object.values(D.cadre_counts);
+  const active = labels.map(l => D.cadre_active[l] || 0);
+
+  new Chart(document.getElementById('chart-cadre-bar'), {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {label:'Total', data:total, backgroundColor:'rgba(255,153,51,0.4)', borderColor:'#FF9933', borderWidth:1, borderRadius:3},
+        {label:'Active', data:active, backgroundColor:'rgba(34,197,94,0.6)', borderColor:'#22c55e', borderWidth:1, borderRadius:3}
+      ]
+    },
+    options: {
+      responsive:true,
+      plugins:{legend:{position:'top'}},
+      scales:{
+        x:{grid:{display:false}, ticks:{maxRotation:45, font:{size:10}}},
+        y:{beginAtZero:true, grid:{color:'#1e2a4a33'}}
+      }
+    }
+  });
+}
+
+// ===== GENDER DECADE CHART =====
+function renderGenderDecade() {
+  const decades = Object.keys(D.gender_decade).sort();
+  const male = decades.map(d => D.gender_decade[d].Male);
+  const female = decades.map(d => D.gender_decade[d].Female);
+  const pct = decades.map(d => {
+    const t = D.gender_decade[d].Male + D.gender_decade[d].Female;
+    return ((D.gender_decade[d].Female / t) * 100).toFixed(1);
+  });
+
+  new Chart(document.getElementById('chart-gender-decade'), {
+    type: 'bar',
+    data: {
+      labels: decades,
+      datasets: [
+        {label:'Male', data:male, backgroundColor:'rgba(59,130,246,0.7)', borderRadius:4, borderSkipped:false},
+        {label:'Female', data:female, backgroundColor:'rgba(168,85,247,0.7)', borderRadius:4, borderSkipped:false}
+      ]
+    },
+    options: {
+      responsive:true,
+      plugins:{
+        legend:{position:'top'},
+        tooltip:{
+          callbacks:{
+            afterBody: (items) => {
+              const idx = items[0].dataIndex;
+              return 'Female %: ' + pct[idx] + '%';
+            }
+          }
+        }
+      },
+      scales:{
+        x:{stacked:true, grid:{display:false}},
+        y:{stacked:true, beginAtZero:true, grid:{color:'#1e2a4a33'}}
+      }
+    }
+  });
+}
+
+// ===== EDUCATION CHART =====
+function renderEducation() {
+  const labels = Object.keys(D.education);
+  const vals = Object.values(D.education);
+
+  new Chart(document.getElementById('chart-education'), {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{data:vals, backgroundColor:COLORS.palette, borderRadius:4, borderWidth:0}]
+    },
+    options: {
+      responsive:true, indexAxis:'y',
+      plugins:{legend:{display:false}},
+      scales:{x:{beginAtZero:true, grid:{color:'#1e2a4a33'}}, y:{grid:{display:false}, ticks:{font:{size:11}}}}
+    }
+  });
+}
+
+// ===== SUBJECTS CHART =====
+function renderSubjects() {
+  const entries = Object.entries(D.edu_subjects).slice(0, 12);
+  new Chart(document.getElementById('chart-subjects'), {
+    type: 'bar',
+    data: {
+      labels: entries.map(e=>e[0]),
+      datasets: [{data:entries.map(e=>e[1]), backgroundColor:COLORS.palette, borderRadius:4, borderWidth:0}]
+    },
+    options: {
+      responsive:true, indexAxis:'y',
+      plugins:{legend:{display:false}},
+      scales:{x:{beginAtZero:true, grid:{color:'#1e2a4a33'}}, y:{grid:{display:false}, ticks:{font:{size:10}}}}
+    }
+  });
+}
+
+// ===== FIELDS CHART =====
+function renderFields() {
+  const entries = Object.entries(D.fields).slice(0, 12);
+  new Chart(document.getElementById('chart-fields'), {
+    type: 'bar',
+    data: {
+      labels: entries.map(e=>e[0]),
+      datasets: [{data:entries.map(e=>e[1]), backgroundColor:'rgba(255,153,51,0.6)', borderColor:'#FF9933', borderWidth:1, borderRadius:4}]
+    },
+    options: {
+      responsive:true, indexAxis:'y',
+      plugins:{legend:{display:false}},
+      scales:{x:{beginAtZero:true, grid:{color:'#1e2a4a33'}}, y:{grid:{display:false}, ticks:{font:{size:10}}}}
+    }
+  });
+}
+
+// ===== LANGUAGES CHART =====
+function renderLanguages() {
+  const entries = Object.entries(D.languages).slice(0, 12);
+  new Chart(document.getElementById('chart-languages'), {
+    type: 'doughnut',
+    data: {
+      labels: entries.map(e=>e[0]),
+      datasets: [{data:entries.map(e=>e[1]), backgroundColor:COLORS.palette, borderWidth:0, hoverOffset:6}]
+    },
+    options: {
+      responsive:true, cutout:'50%',
+      plugins:{legend:{position:'right', labels:{font:{size:10}, padding:8}}}
+    }
+  });
+}
+
+// ===== OFFICERS DIRECTORY =====
+let filteredOfficers = [...O];
+let currentPage = 1;
+const PAGE_SIZE = 50;
+let sortKey = 'n';
+let sortDir = 1;
+
+function populateFilters() {
+  const cadres = [...new Set(O.map(o => o.c))].sort();
+  const levels = [...new Set(O.map(o => o.l).filter(Boolean))].sort();
+  const sources = [...new Set(O.map(o => o.src).filter(Boolean))].sort();
+
+  const cadreSelect = document.getElementById('filter-cadre');
+  cadres.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.textContent = c; cadreSelect.appendChild(opt); });
+
+  const levelSelect = document.getElementById('filter-level');
+  levels.forEach(l => { const opt = document.createElement('option'); opt.value = l; opt.textContent = l; levelSelect.appendChild(opt); });
+
+  const sourceSelect = document.getElementById('filter-source');
+  sources.forEach(s => { const opt = document.createElement('option'); opt.value = s; opt.textContent = s; sourceSelect.appendChild(opt); });
+}
+
+function filterOfficers() {
+  const query = document.getElementById('search-input').value.toLowerCase();
+  const cadre = document.getElementById('filter-cadre').value;
+  const gender = document.getElementById('filter-gender').value;
+  const status = document.getElementById('filter-status').value;
+  const level = document.getElementById('filter-level').value;
+  const source = document.getElementById('filter-source').value;
+
+  filteredOfficers = O.filter(o => {
+    if (query && !((o.n||'').toLowerCase().includes(query) || (o.id||'').toLowerCase().includes(query) || (o.o||'').toLowerCase().includes(query) || (o.d||'').toLowerCase().includes(query) || (o.f||'').toLowerCase().includes(query))) return false;
+    if (cadre && o.c !== cadre) return false;
+    if (gender && o.g !== gender) return false;
+    if (status === 'active' && o.r !== '0') return false;
+    if (status === 'retired' && o.r !== '1') return false;
+    if (level && o.l !== level) return false;
+    if (source && o.src !== source) return false;
+    return true;
+  });
+
+  // Sort
+  filteredOfficers.sort((a, b) => {
+    const va = (a[sortKey] || '').toString();
+    const vb = (b[sortKey] || '').toString();
+    if (sortKey === 'y') return (parseInt(va)||0) - (parseInt(vb)||0) * sortDir || sortDir;
+    return va.localeCompare(vb) * sortDir;
+  });
+
+  currentPage = 1;
+  renderTable();
+}
+
+function renderTable() {
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const page = filteredOfficers.slice(start, start + PAGE_SIZE);
+
+  document.getElementById('results-count').textContent = `Showing ${start+1}-${Math.min(start+PAGE_SIZE, filteredOfficers.length)} of ${filteredOfficers.length.toLocaleString()} officers`;
+
+  const tbody = document.getElementById('officers-tbody');
+  tbody.innerHTML = page.map((o, i) => {
+    const statusBadge = o.r === '0' ? '<span class="badge badge-active">Active</span>' : '<span class="badge badge-retired">Retired</span>';
+    const genderBadge = o.g === 'Female' ? '<span class="badge badge-female">F</span>' : '<span class="badge badge-male">M</span>';
+    return `<tr>
+      <td class="name-cell" data-idx="${start+i}">${o.n || 'N/A'}</td>
+      <td>${o.c || ''}</td>
+      <td>${o.y || ''}</td>
+      <td>${genderBadge}</td>
+      <td>${statusBadge}</td>
+      <td>${o.d || ''}</td>
+      <td>${o.l || ''}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${o.o||''}">${o.o || ''}</td>
+    </tr>`;
+  }).join('');
+
+  // Click handler for names
+  tbody.querySelectorAll('.name-cell').forEach(cell => {
+    cell.addEventListener('click', () => showProfile(filteredOfficers[parseInt(cell.dataset.idx)]));
+  });
+
+  renderPagination();
+}
+
+function renderPagination() {
+  const totalPages = Math.ceil(filteredOfficers.length / PAGE_SIZE);
+  const pag = document.getElementById('pagination');
+  if (totalPages <= 1) { pag.innerHTML = ''; return; }
+
+  let html = `<button class="page-btn" ${currentPage===1?'disabled':''} onclick="goPage(${currentPage-1})">&#9664; Prev</button>`;
+
+  const range = [];
+  range.push(1);
+  for (let i = Math.max(2, currentPage-2); i <= Math.min(totalPages-1, currentPage+2); i++) range.push(i);
+  if (totalPages > 1) range.push(totalPages);
+  const unique = [...new Set(range)].sort((a,b)=>a-b);
+
+  let prev = 0;
+  unique.forEach(p => {
+    if (p - prev > 1) html += '<span class="page-info">...</span>';
+    html += `<button class="page-btn ${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
+    prev = p;
+  });
+
+  html += `<button class="page-btn" ${currentPage===totalPages?'disabled':''} onclick="goPage(${currentPage+1})">Next &#9654;</button>`;
+  html += `<span class="page-info">${currentPage} of ${totalPages}</span>`;
+
+  pag.innerHTML = html;
+}
+
+window.goPage = function(p) {
+  currentPage = p;
+  renderTable();
+  document.getElementById('tab-officers').scrollIntoView({behavior:'smooth'});
+};
+
+// Sort handler
+document.querySelectorAll('.officers-table th[data-sort]').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.sort;
+    if (sortKey === key) sortDir *= -1;
+    else { sortKey = key; sortDir = 1; }
+    filterOfficers();
+  });
+});
+
+// Search and filter handlers
+document.getElementById('search-input').addEventListener('input', debounce(filterOfficers, 300));
+['filter-cadre','filter-gender','filter-status','filter-level','filter-source'].forEach(id => {
+  document.getElementById(id).addEventListener('change', filterOfficers);
+});
+
+function debounce(fn, ms) {
+  let t; return function(...args) { clearTimeout(t); t = setTimeout(() => fn.apply(this, args), ms); };
+}
+
+// ===== CAREER PATH PREDICTION ENGINE =====
+const LEVEL_HIERARCHY = [
+  {level:'Junior Scale', avgYears:4, fields:['District Admn','Revenue','General Administration','Divisional Admn']},
+  {level:'Under Secretary', avgYears:4, fields:['District Admn','Revenue','Finance','General Administration','Home']},
+  {level:'Deputy Secretary', avgYears:5, fields:['General Administration','Finance','Industries','Urban Develoment','Planning']},
+  {level:'Director', avgYears:4, fields:['Finance','Industries','Health & Family Welfare','Education','Commerce']},
+  {level:'Joint Secretary', avgYears:5, fields:['Finance','Commerce','Home','Defence','Personnel Training','Industries']},
+  {level:'Additional Secretary', avgYears:4, fields:['Finance','Home','Defence','External Affairs','Commerce','Cabinet Sectt.']},
+  {level:'Secretary', avgYears:3, fields:['Finance','Home','Defence','Cabinet Sectt.','Personnel Training','External Affairs']},
+  {level:'Cabinet Secretary', avgYears:2, fields:['Cabinet Sectt.']}
+];
+
+function getLevelIndex(level) {
+  if (!level) return -1;
+  const idx = LEVEL_HIERARCHY.findIndex(h => level.includes(h.level) || h.level.includes(level));
+  return idx >= 0 ? idx : -1;
+}
+
+function predictCareerPath(officer) {
+  const currentLevel = officer.l || '';
+  const currentIdx = getLevelIndex(currentLevel);
+  const allotYear = parseInt(officer.y) || 2000;
+  const yearsInService = 2026 - allotYear;
+  const isActive = officer.r === '0';
+
+  // Estimate retirement year from DOB
+  let retireYear = 2060;
+  if (officer.dob) {
+    const parts = (officer.dob || '').split('-');
+    if (parts.length === 3) {
+      let by = parseInt(parts[2]);
+      if (by < 100) by += 1900;
+      retireYear = by + 60;
+    }
+  }
+  const yearsLeft = Math.max(0, retireYear - 2026);
+
+  const path = [];
+
+  // Past/current levels
+  for (let i = 0; i <= Math.min(currentIdx, LEVEL_HIERARCHY.length-1); i++) {
+    const h = LEVEL_HIERARCHY[i];
+    const approxYear = allotYear + LEVEL_HIERARCHY.slice(0,i).reduce((s,x)=>s+x.avgYears, 0);
+    path.push({
+      level: h.level,
+      status: i < currentIdx ? 'past' : 'current',
+      year: Math.round(approxYear),
+      fields: h.fields.slice(0,3),
+      detail: i === currentIdx ? (officer.o || officer.f || '') : ''
+    });
+  }
+
+  // Future predicted levels (only for active officers)
+  if (isActive && currentIdx >= 0 && currentIdx < LEVEL_HIERARCHY.length - 1) {
+    let futureYear = 2026;
+    for (let i = currentIdx + 1; i < LEVEL_HIERARCHY.length; i++) {
+      const h = LEVEL_HIERARCHY[i];
+      futureYear += h.avgYears;
+      if (futureYear > retireYear) break;
+      // Calculate probability based on historical data
+      const totalAtPrevLevel = D.levels[LEVEL_HIERARCHY[i-1].level] || 1;
+      const totalAtThisLevel = D.levels[h.level] || 0;
+      const baseProbability = Math.min(95, Math.round((totalAtThisLevel / totalAtPrevLevel) * 100));
+      const ageFactor = yearsLeft > (futureYear - 2026) ? 1 : 0.3;
+      const probability = Math.round(baseProbability * ageFactor);
+
+      // Pick likely fields based on current trajectory
+      const likelyFields = h.fields.filter(f => {
+        if (officer.f && f === officer.f) return true;
+        return true;
+      }).slice(0, 3);
+
+      path.push({
+        level: h.level,
+        status: 'future',
+        year: Math.round(futureYear),
+        probability: probability,
+        fields: likelyFields,
+        detail: 'Likely: ' + likelyFields.join(', ')
+      });
+    }
+  }
+
+  return {path, retireYear, yearsInService, yearsLeft, isActive};
+}
+
+function renderCareerPath(officer, container) {
+  const prediction = predictCareerPath(officer);
+
+  let html = '';
+  if (!prediction.isActive) {
+    html += '<div style="padding:12px;background:rgba(59,130,246,0.1);border-radius:8px;margin-bottom:16px;font-size:13px;color:var(--text2)">This officer has retired. Showing their career trajectory.</div>';
+  } else {
+    html += `<div style="padding:12px;background:rgba(34,197,94,0.1);border-radius:8px;margin-bottom:16px;font-size:13px;color:#22c55e">Active officer &bull; ~${prediction.yearsLeft} years to superannuation (est. ${prediction.retireYear}) &bull; ${prediction.yearsInService} years in service</div>`;
+  }
+
+  html += '<div class="career-timeline">';
+  prediction.path.forEach(node => {
+    const tagClass = node.status === 'past' ? 'ct-tag-past' : (node.status === 'current' ? 'ct-tag-current' : 'ct-tag-future');
+    const tagText = node.status === 'past' ? 'Completed' : (node.status === 'current' ? 'Current Level' : `~${node.probability}% likelihood`);
+    html += `<div class="ct-node ${node.status}">
+      <div class="ct-level">${node.level}</div>
+      <div class="ct-detail">${node.status === 'future' ? 'Est. ' + node.year + ' &bull; ' : (node.year ? '~'+node.year+' &bull; ' : '')}${node.detail || node.fields.join(', ')}</div>
+      <span class="ct-prob ${tagClass}">${tagText}</span>
+    </div>`;
+  });
+  html += '</div>';
+
+  if (prediction.isActive && prediction.path.filter(n=>n.status==='future').length > 0) {
+    const topLevel = prediction.path[prediction.path.length-1];
+    html += `<div style="padding:14px;background:linear-gradient(135deg,rgba(255,153,51,0.1),rgba(34,197,94,0.1));border:1px solid var(--border);border-radius:10px;margin-top:8px">
+      <div style="font-size:14px;font-weight:700;color:var(--accent)">Projected Peak: ${topLevel.level}</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:4px">Based on career velocity and historical patterns of ${D.summary.total.toLocaleString()} officers</div>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+// ===== PROFILE MODAL =====
+function showProfile(o) {
+  document.getElementById('modal-name').textContent = o.n || 'Unknown';
+
+  const statusBadge = o.r === '0' ? '<span class="badge badge-active">Active</span>' : '<span class="badge badge-retired">Retired</span>';
+  const genderBadge = o.g === 'Female' ? '<span class="badge badge-female">Female</span>' : '<span class="badge badge-male">Male</span>';
+  document.getElementById('modal-meta').innerHTML = `${statusBadge} ${genderBadge} <span class="badge" style="background:rgba(255,153,51,0.15);color:#FF9933">${o.c}</span>`;
+
+  const items = [
+    {label:'Officer ID', value:o.id},
+    {label:'Cadre', value:o.c},
+    {label:'Allotment Year', value:o.y},
+    {label:'Date of Birth', value:o.dob},
+    {label:'Gender', value:o.g},
+    {label:'Domicile', value:o.dom},
+    {label:'Education', value:o.eq},
+    {label:'Subject', value:o.es},
+    {label:'Recruitment Source', value:o.src, full:true},
+    {label:'Last Designation', value:o.d, full:true},
+    {label:'Last Level', value:o.l},
+    {label:'Last Field', value:o.f},
+    {label:'Last Office', value:o.o, full:true}
+  ];
+
+  document.getElementById('modal-profile').innerHTML = items.filter(i=>i.value).map(i =>
+    `<div class="profile-item ${i.full?'full':''}"><div class="pi-label">${i.label}</div><div class="pi-value">${i.value}</div></div>`
+  ).join('');
+
+  // Render career path prediction in modal
+  renderCareerPath(o, document.getElementById('modal-career-path'));
+
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+document.getElementById('modal-close').addEventListener('click', () => {
+  document.getElementById('modal-overlay').classList.remove('show');
+});
+document.getElementById('modal-overlay').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) document.getElementById('modal-overlay').classList.remove('show');
+});
+
+// ===== INSIGHTS =====
+
+// Fun Facts
+function renderFunFacts() {
+  const s = D.summary;
+  const oldestBatch = D.year_intake;
+  const largestCadre = Object.entries(D.cadre_counts).sort((a,b)=>b[1]-a[1])[0];
+  const topField = Object.entries(D.fields).sort((a,b)=>b[1]-a[1])[0];
+  const topLang = Object.entries(D.languages).sort((a,b)=>b[1]-a[1])[0];
+  const topSubj = Object.entries(D.edu_subjects).sort((a,b)=>b[1]-a[1])[0];
+  const peakYear = Object.entries(D.year_intake).sort((a,b)=>b[1]-a[1])[0];
+  const recentFemPct = ((D.gender_decade['2010s']?.Female||0) / ((D.gender_decade['2010s']?.Male||0) + (D.gender_decade['2010s']?.Female||0)) * 100).toFixed(0);
+  const earlyFemPct = ((D.gender_decade['1950s']?.Female||0) / ((D.gender_decade['1950s']?.Male||0) + (D.gender_decade['1950s']?.Female||0)) * 100).toFixed(0);
+
+  const facts = [
+    {emoji:'&#127470;&#127475;', title:'Largest Cadre', value:largestCadre[0], desc:largestCadre[1]+' officers'},
+    {emoji:'&#128200;', title:'Peak Intake Year', value:peakYear[0], desc:peakYear[1]+' officers allotted'},
+    {emoji:'&#128105;&#8205;&#9878;&#65039;', title:'Women in 2010s', value:recentFemPct+'%', desc:'Up from '+earlyFemPct+'% in 1950s'},
+    {emoji:'&#127891;', title:'Top Subject', value:topSubj[0], desc:topSubj[1]+' officers studied this'},
+    {emoji:'&#127758;', title:'Top Language', value:topLang[0], desc:'Most common mother tongue'},
+    {emoji:'&#127961;', title:'Top Field', value:topField[0], desc:topField[1]+' officers served here'},
+    {emoji:'&#128100;', title:'Total Careers', value:'151K+', desc:'Individual posting records'},
+    {emoji:'&#9200;', title:'Service Span', value:'70 Years', desc:'1951 to 2020 and counting'}
+  ];
+
+  document.getElementById('fun-facts').innerHTML = facts.map(f => `
+    <div class="fact-card">
+      <div class="fact-emoji">${f.emoji}</div>
+      <div class="fact-title">${f.title}</div>
+      <div class="fact-value">${f.value}</div>
+      <div class="fact-desc">${f.desc}</div>
+    </div>
+  `).join('');
+}
+
+// Retirement Wave
+function renderRetirementWave() {
+  const wave = D.retirement_wave;
+  const years = Object.keys(wave).map(Number).filter(y => y >= 2024);
+  const vals = years.map(y => wave[y]);
+  const maxV = Math.max(...vals);
+
+  const container = document.getElementById('retirement-wave');
+  container.innerHTML = years.map((y, i) => {
+    const h = (vals[i] / maxV) * 170;
+    const opacity = 0.4 + (vals[i]/maxV) * 0.6;
+    const color = y <= 2026 ? '#ef4444' : (y <= 2030 ? '#f59e0b' : '#3b82f6');
+    return `<div class="wave-col" style="height:${h}px;background:${color};opacity:${opacity}">
+      <div class="wave-val">${vals[i]}</div>
+      <div class="wave-label">${y}</div>
+    </div>`;
+  }).join('');
+}
+
+// Gender Gap by Cadre
+function renderGenderGap() {
+  const gc = D.gender_cadre;
+  const cadres = Object.entries(gc).map(([c, v]) => ({
+    name: c,
+    male: v.Male || 0,
+    female: v.Female || 0,
+    total: (v.Male||0) + (v.Female||0),
+    pct: ((v.Female||0) / ((v.Male||0) + (v.Female||0)) * 100)
+  })).sort((a,b) => b.pct - a.pct);
+
+  const container = document.getElementById('gender-gap-bars');
+  container.innerHTML = cadres.map(c => {
+    const mPct = (c.male/c.total*100).toFixed(1);
+    const fPct = c.pct.toFixed(1);
+    return `<div class="gap-row">
+      <div class="gap-label" title="${c.name}">${c.name}</div>
+      <div class="gap-bars">
+        <div class="gap-male" style="width:${mPct}%"></div>
+        <div class="gap-female" style="width:${fPct}%"></div>
+      </div>
+      <div class="gap-pct">${fPct}% F</div>
+    </div>`;
+  }).join('');
+}
+
+// Insider/Outsider
+function renderInsider() {
+  const ins = D.insider || {};
+  const cadres = Object.entries(ins).map(([c, v]) => ({
+    name: c,
+    insider: v.insider || 0,
+    outsider: v.outsider || 0,
+    total: (v.insider||0) + (v.outsider||0),
+    pct: ((v.insider||0) / ((v.insider||0) + (v.outsider||0)) * 100)
+  })).filter(c => c.total > 50).sort((a,b) => b.pct - a.pct);
+
+  const container = document.getElementById('insider-bars');
+  container.innerHTML = '<div style="display:flex;gap:12px;margin-bottom:12px;font-size:12px"><div style="display:flex;align-items:center;gap:4px"><div style="width:12px;height:12px;background:#22c55e;border-radius:2px"></div> Insider (home state)</div><div style="display:flex;align-items:center;gap:4px"><div style="width:12px;height:12px;background:#3b82f6;border-radius:2px"></div> Outsider (allocated)</div></div>' +
+  cadres.map(c => {
+    const iPct = c.pct.toFixed(0);
+    const oPct = (100-c.pct).toFixed(0);
+    return `<div class="gap-row">
+      <div class="gap-label" title="${c.name}">${c.name}</div>
+      <div class="gap-bars">
+        <div style="width:${iPct}%;background:#22c55e;transition:width 1s ease"></div>
+        <div style="width:${oPct}%;background:#3b82f6;transition:width 1s ease"></div>
+      </div>
+      <div class="gap-pct">${iPct}% home</div>
+    </div>`;
+  }).join('');
+}
+
+// Career Transitions
+function renderTransitions() {
+  const trans = D.career?.transitions || {};
+  // Filter to major transitions (upward promotions)
+  const upward = [
+    'Under Secretary -> Junior Scale',
+    'Deputy Secretary -> Under Secretary',
+    'Director -> Deputy Secretary',
+    'Joint Secretary -> Director',
+    'Additional Secretary -> Joint Secretary',
+    'Secretary -> Additional Secretary'
+  ];
+
+  const labels = [];
+  const vals = [];
+  Object.entries(trans).forEach(([k,v]) => {
+    labels.push(k);
+    vals.push(v);
+  });
+
+  // Take top 15
+  const sorted = labels.map((l,i) => ({l,v:vals[i]})).sort((a,b) => b.v - a.v).slice(0,15);
+
+  new Chart(document.getElementById('chart-transitions'), {
+    type: 'bar',
+    data: {
+      labels: sorted.map(s => s.l),
+      datasets: [{
+        data: sorted.map(s => s.v),
+        backgroundColor: sorted.map((s,i) => {
+          if (s.l.includes('Secretary -> Additional')) return '#22c55e';
+          if (s.l.includes('Additional Secretary -> Joint')) return '#3b82f6';
+          if (s.l.includes('Joint Secretary -> Director')) return '#a855f7';
+          return COLORS.palette[i % COLORS.palette.length];
+        }),
+        borderRadius: 4,
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive:true, indexAxis:'y',
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:(item)=>item.raw.toLocaleString()+' transitions'}}},
+      scales:{x:{beginAtZero:true, grid:{color:'#1e2a4a33'}}, y:{grid:{display:false}, ticks:{font:{size:10}}}}
+    }
+  });
+}
+
+// Power Centers
+function renderPowerCenters() {
+  // Top offices/designations from the officers data
+  const offices = {};
+  const desigs = {};
+  O.forEach(o => {
+    if (o.o) offices[o.o] = (offices[o.o]||0) + 1;
+    if (o.d) desigs[o.d] = (desigs[o.d]||0) + 1;
+  });
+
+  const topOffices = Object.entries(offices).sort((a,b)=>b[1]-a[1]).slice(0,15);
+  const maxO = topOffices[0][1];
+
+  const container = document.getElementById('power-centers');
+  container.innerHTML = '<h4 style="font-size:14px;color:var(--text2);margin-bottom:12px">Top 15 Offices (Last Posting)</h4>' +
+    '<div class="hbar-chart">' +
+    topOffices.map((o, i) => {
+      const pct = (o[1]/maxO*100).toFixed(0);
+      const color = COLORS.palette[i % COLORS.palette.length];
+      return `<div class="hbar-row">
+        <div class="hbar-label" title="${o[0]}">${o[0].length > 35 ? o[0].substring(0,35)+'...' : o[0]}</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:${pct}%;background:${color}">${o[1]}</div></div>
+      </div>`;
+    }).join('') +
+    '</div>';
+}
+
+// ===== CAREER PREDICTOR TAB =====
+function initPredictor() {
+  const searchInput = document.getElementById('predictor-search');
+  const resultsDiv = document.getElementById('predictor-results');
+  const outputDiv = document.getElementById('predictor-output');
+
+  // Render career ladder
+  const ladderContainer = document.getElementById('career-ladder');
+  const maxYears = 35;
+  ladderContainer.innerHTML = LEVEL_HIERARCHY.map((h, i) => {
+    const cumYears = LEVEL_HIERARCHY.slice(0, i+1).reduce((s,x)=>s+x.avgYears, 0);
+    const w = (cumYears / maxYears * 100).toFixed(0);
+    const color = COLORS.palette[i % COLORS.palette.length];
+    return `<div class="ladder-step">
+      <div class="ladder-label">${h.level}</div>
+      <div class="hbar-track" style="height:36px"><div class="ladder-bar" style="width:${w}%;background:${color}">${h.avgYears} yrs</div></div>
+      <div class="ladder-years">~${cumYears} yrs total</div>
+    </div>`;
+  }).join('');
+
+  // Render department flow chart
+  const deptLabels = ['District Admn', 'Revenue', 'Finance', 'Industries', 'Health & Family Welfare', 'Home', 'Commerce', 'Defence', 'Personnel Training', 'Cabinet Sectt.'];
+  const deptByLevel = LEVEL_HIERARCHY.map(h => {
+    return deptLabels.map(d => h.fields.includes(d) ? 1 : 0);
+  });
+
+  new Chart(document.getElementById('chart-dept-flow'), {
+    type: 'bar',
+    data: {
+      labels: LEVEL_HIERARCHY.map(h => h.level),
+      datasets: deptLabels.map((dept, di) => ({
+        label: dept,
+        data: deptByLevel.map(row => row[di]),
+        backgroundColor: COLORS.palette[di % COLORS.palette.length] + '99',
+        borderRadius: 2, borderWidth: 0
+      }))
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: {stacked:true, grid:{display:false}, ticks:{font:{size:10}}},
+        y: {stacked:true, display:false}
+      },
+      plugins: {
+        legend: {position:'bottom', labels:{font:{size:10}, padding:8}},
+        tooltip: {callbacks:{label:(item)=>item.dataset.label + (item.raw ? ' (common)' : ' (rare)')}}
+      }
+    }
+  });
+
+  // Search handler
+  searchInput.addEventListener('input', debounce(() => {
+    const q = searchInput.value.toLowerCase().trim();
+    if (q.length < 2) { resultsDiv.innerHTML = ''; outputDiv.innerHTML = ''; return; }
+
+    const matches = O.filter(o => o.r === '0' && ((o.n||'').toLowerCase().includes(q) || (o.id||'').toLowerCase().includes(q))).slice(0, 8);
+
+    if (matches.length === 0) {
+      resultsDiv.innerHTML = '<div style="color:var(--text2);font-size:13px;padding:8px">No active officers found. Try a different name.</div>';
+      return;
+    }
+
+    resultsDiv.innerHTML = matches.map((o, i) => `
+      <div class="predictor-card" data-pidx="${i}">
+        <div class="pc-name">${o.n}</div>
+        <div class="pc-info">${o.c} &bull; ${o.y} batch &bull; ${o.l || 'N/A'} &bull; ${o.d || ''}</div>
+      </div>
+    `).join('');
+
+    resultsDiv.querySelectorAll('.predictor-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const officer = matches[parseInt(card.dataset.pidx)];
+        renderCareerPath(officer, outputDiv);
+        resultsDiv.innerHTML = '';
+        searchInput.value = officer.n;
+      });
+    });
+  }, 300));
+}
+
+// ===== RENDER ALL =====
+function init() {
+  renderSummaryCards();
+  renderIntakeChart();
+  renderRecruitChart();
+  renderLevelsChart();
+  renderMap();
+  renderCadreBar();
+  renderGenderDecade();
+  renderEducation();
+  renderSubjects();
+  renderFields();
+  renderLanguages();
+  populateFilters();
+  filterOfficers();
+  renderFunFacts();
+  renderRetirementWave();
+  renderGenderGap();
+  renderInsider();
+  renderTransitions();
+  renderPowerCenters();
+  initPredictor();
+}
+
+// Map mode change
+document.getElementById('map-mode').addEventListener('change', renderMap);
+
+// Init
+window.addEventListener('DOMContentLoaded', init);
+
+// Keyboard shortcut for search
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    document.querySelectorAll('.tab-btn')[3].click();
+    setTimeout(() => document.getElementById('search-input').focus(), 100);
+  }
+  if (e.key === 'Escape') {
+    document.getElementById('modal-overlay').classList.remove('show');
+  }
+});
+</script>
+</body>
+</html>
