@@ -7,6 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="dashboard_summary.js"></script>
 <script src="officers_data.js"></script>
+<script src="live_intel_data.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -180,6 +181,95 @@ a{color:var(--accent);text-decoration:none}
   .search-bar input,.search-bar select{width:100%}
 }
 
+/* Power Cards */
+.power-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden;transition:all 0.3s}
+.power-card:hover{border-color:var(--accent);box-shadow:var(--glow);transform:translateY(-2px)}
+.power-card .pc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.power-card .pc-name{font-size:16px;font-weight:700;color:var(--accent)}
+.power-card .pc-level{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.pc-level-apex{background:rgba(239,68,68,0.2);color:#ef4444}
+.pc-level-secretary{background:rgba(255,153,51,0.2);color:#FF9933}
+.pc-level-cs{background:rgba(34,197,94,0.2);color:#22c55e}
+.power-card .pc-ministry{font-size:13px;color:var(--text);margin-bottom:8px;font-weight:500}
+.power-card .pc-meta{font-size:12px;color:var(--text2);display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.power-card .pc-meta span{background:var(--card2);padding:2px 8px;border-radius:4px}
+.power-card .pc-note{font-size:12px;color:var(--text2);padding:10px;background:var(--card2);border-radius:6px;border-left:3px solid var(--accent);line-height:1.5}
+.power-card .pc-prev{font-size:11px;color:var(--text2);margin-top:8px}
+
+/* Scheme Cards */
+.scheme-card{padding:16px;background:var(--card2);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;transition:all 0.3s}
+.scheme-card:hover{border-color:var(--accent)}
+.scheme-card .sc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.scheme-card .sc-name{font-size:14px;font-weight:700;color:var(--text)}
+.scheme-card .sc-budget{font-size:14px;font-weight:700;color:var(--accent)}
+.scheme-card .sc-desc{font-size:12px;color:var(--text2);margin-bottom:6px}
+.scheme-card .sc-meta{display:flex;gap:8px;flex-wrap:wrap;font-size:11px}
+.scheme-card .sc-meta span{background:var(--bg);padding:3px 8px;border-radius:4px;color:var(--text2)}
+.scheme-card .sc-action{font-size:12px;color:var(--green);margin-top:8px;padding:8px;background:rgba(34,197,94,0.08);border-radius:6px;border-left:3px solid var(--green)}
+
+/* Briefing Card */
+.briefing-card{background:var(--card);border:1px solid var(--accent);border-radius:12px;overflow:hidden}
+.briefing-header{padding:20px 24px;background:linear-gradient(135deg,rgba(255,153,51,0.12),rgba(255,153,51,0.04));border-bottom:1px solid var(--border)}
+.briefing-header h2{font-size:20px;color:var(--accent)}
+.briefing-header .bh-role{font-size:14px;color:var(--text);margin-top:4px}
+.briefing-body{padding:20px 24px}
+.briefing-section{margin-bottom:16px}
+.briefing-section h4{font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.briefing-section p,.briefing-section li{font-size:13px;color:var(--text2);line-height:1.6}
+.briefing-section ul{padding-left:16px}
+.briefing-section li{margin-bottom:4px}
+.briefing-kv{display:grid;grid-template-columns:140px 1fr;gap:6px;font-size:13px}
+.briefing-kv .bk-label{color:var(--text2)}
+.briefing-kv .bk-value{color:var(--text);font-weight:500}
+
+/* Opportunity Cards */
+.opp-card{padding:16px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:12px;transition:all 0.3s}
+.opp-card:hover{border-color:var(--green);box-shadow:0 0 15px rgba(34,197,94,0.1)}
+.opp-card .oc-top{display:flex;justify-content:space-between;align-items:center}
+.opp-card .oc-name{font-size:14px;font-weight:700;color:var(--text)}
+.opp-card .oc-budget{font-size:16px;font-weight:700;color:var(--green)}
+.opp-card .oc-ministry{font-size:12px;color:var(--accent);margin-top:2px}
+.opp-card .oc-desc{font-size:12px;color:var(--text2);margin:8px 0}
+.opp-card .oc-action{font-size:12px;color:var(--green);padding:8px;background:rgba(34,197,94,0.08);border-radius:6px;border-left:3px solid var(--green)}
+.opp-card .oc-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.opp-card .oc-tag{font-size:10px;padding:2px 8px;border-radius:4px;background:var(--card2);color:var(--text2)}
+
+/* Stakeholder Map */
+.stake-chain{display:flex;flex-direction:column;gap:4px;margin-top:16px}
+.stake-node{display:flex;align-items:stretch;gap:12px}
+.stake-line{width:3px;background:linear-gradient(180deg,var(--accent),var(--green));border-radius:2px;margin-left:16px;min-height:20px}
+.stake-box{flex:1;padding:14px 18px;background:var(--card);border:1px solid var(--border);border-radius:10px;transition:all 0.3s}
+.stake-box:hover{border-color:var(--accent)}
+.stake-box .sb-step{font-size:11px;color:var(--accent);font-weight:600;text-transform:uppercase;letter-spacing:1px}
+.stake-box .sb-who{font-size:14px;font-weight:600;color:var(--text);margin-top:4px}
+.stake-box .sb-detail{font-size:12px;color:var(--text2);margin-top:4px;line-height:1.5}
+.stake-box .sb-time{font-size:11px;color:var(--blue);margin-top:6px;font-weight:500}
+
+/* News items */
+.news-item{padding:14px;border-bottom:1px solid var(--border);transition:background 0.2s}
+.news-item:hover{background:var(--card2)}
+.news-item:last-child{border-bottom:none}
+.news-item .ni-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.news-item .ni-meta{font-size:11px;color:var(--text2);display:flex;gap:10px}
+.news-item .ni-tag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:600}
+.ni-tag-transfer{background:rgba(59,130,246,0.15);color:#60a5fa}
+.ni-tag-policy{background:rgba(168,85,247,0.15);color:#c084fc}
+.ni-tag-budget{background:rgba(34,197,94,0.15);color:#22c55e}
+.ni-tag-appointment{background:rgba(255,153,51,0.15);color:#FF9933}
+
+/* State metric cards */
+.state-card{padding:14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;transition:all 0.3s}
+.state-card:hover{border-color:var(--accent)}
+.state-card .stc-name{font-size:14px;font-weight:700;color:var(--accent)}
+.state-card .stc-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;font-size:12px}
+.state-card .stc-label{color:var(--text2)}
+.state-card .stc-val{color:var(--text);font-weight:500}
+.state-card .stc-projects{font-size:11px;color:var(--text2);margin-top:6px}
+
+/* Quick link buttons */
+.qlink{display:inline-block;padding:6px 14px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-size:12px;cursor:pointer;transition:all 0.2s;text-decoration:none}
+.qlink:hover{background:var(--accent);color:#000;border-color:var(--accent)}
+
 /* Career Predictor */
 .career-timeline{position:relative;padding-left:40px;margin:20px 0}
 .career-timeline::before{content:'';position:absolute;left:16px;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--accent),var(--green),var(--blue),var(--purple))}
@@ -266,8 +356,12 @@ a{color:var(--accent);text-decoration:none}
   <button class="tab-btn" data-tab="map"><span class="tab-icon">&#9737;</span> India Map</button>
   <button class="tab-btn" data-tab="analytics"><span class="tab-icon">&#9635;</span> Analytics</button>
   <button class="tab-btn" data-tab="officers"><span class="tab-icon">&#9783;</span> Officers Directory</button>
-  <button class="tab-btn" data-tab="predictor"><span class="tab-icon">&#9889;</span> Career Predictor</button>
-  <button class="tab-btn" data-tab="insights"><span class="tab-icon">&#9733;</span> Insights & Surprises</button>
+  <button class="tab-btn" data-tab="liveintel"><span class="tab-icon">&#9889;</span> Live Intel</button>
+  <button class="tab-btn" data-tab="powermap"><span class="tab-icon">&#9878;</span> Power Map</button>
+  <button class="tab-btn" data-tab="budgets"><span class="tab-icon">&#8377;</span> Budget Command</button>
+  <button class="tab-btn" data-tab="actions"><span class="tab-icon">&#9881;</span> Action Center</button>
+  <button class="tab-btn" data-tab="predictor"><span class="tab-icon">&#9733;</span> Career Predictor</button>
+  <button class="tab-btn" data-tab="insights"><span class="tab-icon">&#9635;</span> Deep Insights</button>
 </nav>
 
 <!-- ==================== TAB 1: OVERVIEW ==================== -->
@@ -386,6 +480,139 @@ a{color:var(--accent);text-decoration:none}
     </table>
   </div>
   <div class="pagination" id="pagination"></div>
+</div>
+
+<!-- ==================== TAB: LIVE INTEL ==================== -->
+<div class="tab-content" id="tab-liveintel">
+  <div class="stats-grid" id="live-stats"></div>
+
+  <div class="charts-grid">
+    <div class="chart-box">
+      <h3>&#128225; Live News & Transfer Tracker</h3>
+      <div class="chart-sub">Latest IAS officer news, transfers, and policy announcements</div>
+      <div id="news-feed" style="max-height:500px;overflow-y:auto;margin-top:12px"></div>
+      <div style="margin-top:16px;padding:12px;background:var(--card2);border-radius:8px">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Quick Search News (opens in new tab):</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap" id="news-quick-links"></div>
+      </div>
+    </div>
+    <div class="chart-box">
+      <h3>&#128203; Recent Senior Appointments</h3>
+      <div class="chart-sub">Key bureaucratic changes at Secretary level and above</div>
+      <div id="recent-appointments" style="max-height:500px;overflow-y:auto;margin-top:12px"></div>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <h3>&#127919; Decision-Maker Quick Reference</h3>
+    <div class="insight-sub">Who controls what? Navigate the approval maze.</div>
+    <div style="overflow-x:auto">
+      <table class="officers-table" id="decision-table">
+        <thead><tr><th>Decision Area</th><th>Authority</th><th>Timeline</th><th>Budget/Scale</th><th>How to Approach</th></tr></thead>
+        <tbody id="decision-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB: POWER MAP ==================== -->
+<div class="tab-content" id="tab-powermap">
+  <div class="search-bar">
+    <input type="text" id="power-search" placeholder="Search by name, ministry, cadre, or designation...">
+    <select id="power-filter-level">
+      <option value="">All Levels</option>
+      <option value="Apex">Apex (Cabinet Secretary)</option>
+      <option value="Secretary">Secretary to GoI</option>
+      <option value="Chief Secretary">Chief Secretary</option>
+    </select>
+  </div>
+  <div class="results-count" id="power-count"></div>
+
+  <div id="power-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:16px;margin-top:16px"></div>
+</div>
+
+<!-- ==================== TAB: BUDGET COMMAND ==================== -->
+<div class="tab-content" id="tab-budgets">
+  <div class="stats-grid" id="budget-summary-cards"></div>
+
+  <div class="chart-box" style="margin-bottom:20px">
+    <h3>&#8377; Ministry-wise Budget Allocation 2025-26</h3>
+    <div class="chart-sub">Total allocation in Crores INR (click any bar for details)</div>
+    <canvas id="chart-ministry-budget" style="max-height:450px"></canvas>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-box">
+      <h3>&#127919; Major Government Schemes</h3>
+      <div class="chart-sub">Flagship schemes with budget allocation and beneficiaries</div>
+      <div id="schemes-list" style="max-height:500px;overflow-y:auto;margin-top:12px"></div>
+    </div>
+    <div class="chart-box">
+      <h3>&#127463;&#127462; State-wise Economic Profile</h3>
+      <div class="chart-sub">GDP, central funds, key projects by state</div>
+      <div id="state-metrics" style="max-height:500px;overflow-y:auto;margin-top:12px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB: ACTION CENTER ==================== -->
+<div class="tab-content" id="tab-actions">
+  <div class="insight-card">
+    <h3>&#128204; Meeting Prep Generator</h3>
+    <div class="insight-sub">Select an officer to generate a comprehensive briefing card for your meeting</div>
+    <div class="search-bar" style="margin-top:12px">
+      <input type="text" id="meeting-search" placeholder="Search officer name for meeting prep...">
+    </div>
+    <div id="meeting-results" style="margin-top:8px"></div>
+    <div id="meeting-briefing" style="margin-top:16px"></div>
+  </div>
+
+  <div class="insight-card">
+    <h3>&#127760; Opportunity Radar</h3>
+    <div class="insight-sub">Active government opportunities by sector and budget threshold</div>
+    <div class="search-bar" style="margin-top:12px">
+      <select id="opp-sector">
+        <option value="">All Sectors</option>
+        <option value="Infrastructure">Infrastructure & Construction</option>
+        <option value="Technology">Technology & Digital</option>
+        <option value="Health">Healthcare</option>
+        <option value="Agriculture">Agriculture & Rural</option>
+        <option value="Energy">Energy & Power</option>
+        <option value="Finance">Finance & Banking</option>
+        <option value="Education">Education & Skilling</option>
+        <option value="Manufacturing">Manufacturing & PLI</option>
+        <option value="Defence">Defence & Security</option>
+      </select>
+      <select id="opp-budget">
+        <option value="">All Budgets</option>
+        <option value="10000">Above 10,000 Cr</option>
+        <option value="50000">Above 50,000 Cr</option>
+        <option value="100000">Above 1,00,000 Cr</option>
+      </select>
+    </div>
+    <div id="opportunity-list" style="margin-top:16px"></div>
+  </div>
+
+  <div class="insight-card">
+    <h3>&#128736; Stakeholder Mapping</h3>
+    <div class="insight-sub">For any project or initiative, identify all relevant decision-makers across the approval chain</div>
+    <div class="search-bar" style="margin-top:12px">
+      <select id="stake-area">
+        <option value="">Select a project type...</option>
+        <option value="highway">Highway / Road Project</option>
+        <option value="realestate">Real Estate / Housing</option>
+        <option value="factory">Manufacturing / Factory Setup</option>
+        <option value="tech">Technology / IT Project</option>
+        <option value="energy">Power / Renewable Energy</option>
+        <option value="health">Healthcare Facility</option>
+        <option value="education">Educational Institution</option>
+        <option value="export">Export Business</option>
+        <option value="startup">Startup / FDI</option>
+        <option value="defence">Defence Procurement</option>
+      </select>
+    </div>
+    <div id="stakeholder-map" style="margin-top:16px"></div>
+  </div>
 </div>
 
 <!-- ==================== TAB: CAREER PREDICTOR ==================== -->
@@ -1338,6 +1565,422 @@ function renderPowerCenters() {
     '</div>';
 }
 
+// ===== LIVE INTEL TAB =====
+function renderLiveIntel() {
+  const L = LIVE_DATA;
+
+  // Live stats
+  document.getElementById('live-stats').innerHTML = [
+    {label:'Current Secretaries Tracked',value:L.currentPostings.filter(p=>p.level==='Secretary').length,cls:'saffron',icon:'&#9878;'},
+    {label:'Chief Secretaries Tracked',value:L.currentPostings.filter(p=>p.level==='Chief Secretary').length,cls:'green',icon:'&#127963;'},
+    {label:'Ministries with Budget Data',value:L.budgets.length,cls:'blue',icon:'&#8377;'},
+    {label:'Schemes Tracked',value:L.schemes.length,cls:'purple',icon:'&#127919;'},
+    {label:'Decision Pathways Mapped',value:L.decisionMap.length,cls:'saffron',icon:'&#9881;'},
+    {label:'States Profiled',value:Object.keys(L.stateMetrics).length,cls:'green',icon:'&#127470;&#127475;'}
+  ].map(c=>`<div class="stat-card ${c.cls}"><div class="icon">${c.icon}</div><div class="label">${c.label}</div><div class="value">${c.value}</div></div>`).join('');
+
+  // News feed (simulated from known data)
+  const newsItems = [
+    {title:'Cabinet Secretary T.V. Somanathan chairs inter-ministerial meeting on PM Gati Shakti progress',tag:'policy',tagLabel:'Policy',date:'Apr 2025',source:'PIB'},
+    {title:'Major IAS reshuffle: 15 Secretary-level officers transferred across ministries',tag:'transfer',tagLabel:'Transfer',date:'Mar 2025',source:'DoPT'},
+    {title:'Union Budget 2025-26 allocates Rs 6.22 lakh crore for Defence, highest ever',tag:'budget',tagLabel:'Budget',date:'Feb 2025',source:'MoF'},
+    {title:'Sujata Saunik makes history as first woman Chief Secretary of Maharashtra',tag:'appointment',tagLabel:'Appointment',date:'2024',source:'GoM'},
+    {title:'NITI Aayog CEO B.V.R. Subrahmanyam launches new Aspirational Blocks Programme',tag:'policy',tagLabel:'Policy',date:'2024',source:'NITI Aayog'},
+    {title:'India Semiconductor Mission clears 5 new proposals worth Rs 1.26 lakh crore',tag:'policy',tagLabel:'Policy',date:'2024',source:'MeitY'},
+    {title:'PM-KISAN 16th installment: Rs 21,000 crore disbursed to 9.5 crore farmers',tag:'budget',tagLabel:'Budget',date:'2024',source:'MoA'},
+    {title:'Smart Cities Mission deadline extended; 80% projects completed across 100 cities',tag:'policy',tagLabel:'Policy',date:'2024',source:'MoHUA'},
+    {title:'Jal Jeevan Mission achieves 75% rural tap connections; 11.7 crore households covered',tag:'policy',tagLabel:'Policy',date:'2024',source:'MoJS'},
+    {title:'PLI Scheme generates Rs 1.28 lakh crore investment, 9.5 lakh jobs across 14 sectors',tag:'budget',tagLabel:'Budget',date:'2024',source:'DPIIT'},
+  ];
+
+  document.getElementById('news-feed').innerHTML = newsItems.map(n=>`
+    <div class="news-item">
+      <div class="ni-title"><span class="ni-tag ni-tag-${n.tag}">${n.tagLabel}</span> ${n.title}</div>
+      <div class="ni-meta"><span>${n.date}</span><span>${n.source}</span></div>
+    </div>
+  `).join('');
+
+  // Quick search links
+  document.getElementById('news-quick-links').innerHTML = [
+    'IAS transfer orders 2025','DoPT latest orders','IAS officer appointments',
+    'Union Budget 2025-26 highlights','PM Gati Shakti updates','IAS reshuffle news'
+  ].map(q=>`<a class="qlink" href="https://www.google.com/search?q=${encodeURIComponent(q)}" target="_blank" rel="noopener">${q}</a>`).join('');
+
+  // Recent appointments
+  document.getElementById('recent-appointments').innerHTML = L.currentPostings.filter(p=>p.since&&p.since.includes('2024')).slice(0,12).map(p=>`
+    <div class="news-item">
+      <div class="ni-title"><span class="ni-tag ni-tag-appointment">New</span> ${p.name} appointed ${p.designation}</div>
+      <div class="ni-meta"><span>${p.ministry}</span><span>Since ${p.since}</span><span>${p.cadre} cadre, ${p.batch} batch</span></div>
+    </div>
+  `).join('');
+
+  // Decision map table
+  document.getElementById('decision-tbody').innerHTML = L.decisionMap.map(d=>`
+    <tr>
+      <td style="font-weight:600;color:var(--accent);white-space:nowrap">${d.area}</td>
+      <td style="font-size:12px">${d.authority}</td>
+      <td style="white-space:nowrap;color:var(--blue)">${d.timeline}</td>
+      <td style="font-size:12px">${d.budget}</td>
+      <td style="font-size:12px;max-width:250px">${d.approach}</td>
+    </tr>
+  `).join('');
+}
+
+// ===== POWER MAP TAB =====
+function renderPowerMap(query,level) {
+  const L = LIVE_DATA;
+  query = (query||'').toLowerCase();
+  level = level||'';
+
+  let officers = L.currentPostings.filter(p => {
+    if (query && !(p.name.toLowerCase().includes(query) || p.ministry.toLowerCase().includes(query) || p.cadre.toLowerCase().includes(query) || p.designation.toLowerCase().includes(query))) return false;
+    if (level && p.level !== level) return false;
+    return true;
+  });
+
+  document.getElementById('power-count').textContent = officers.length + ' officers found';
+
+  document.getElementById('power-cards').innerHTML = officers.map(p => {
+    const levelCls = p.level==='Apex'?'pc-level-apex':(p.level==='Secretary'?'pc-level-secretary':'pc-level-cs');
+    return `<div class="power-card">
+      <div class="pc-top">
+        <div class="pc-name">${p.name}</div>
+        <span class="pc-level ${levelCls}">${p.level}</span>
+      </div>
+      <div class="pc-ministry">${p.designation} &mdash; ${p.ministry}</div>
+      <div class="pc-meta">
+        <span>${p.cadre} cadre</span>
+        <span>${p.batch} batch</span>
+        <span>Since ${p.since}</span>
+      </div>
+      ${p.prev?'<div class="pc-prev">Previously: '+p.prev+'</div>':''}
+      <div class="pc-note">${p.note}</div>
+    </div>`;
+  }).join('') || '<div style="padding:40px;text-align:center;color:var(--text2)">No officers match your search.</div>';
+}
+
+function initPowerMap() {
+  renderPowerMap('','');
+  document.getElementById('power-search').addEventListener('input', debounce(()=>{
+    renderPowerMap(document.getElementById('power-search').value, document.getElementById('power-filter-level').value);
+  },300));
+  document.getElementById('power-filter-level').addEventListener('change',()=>{
+    renderPowerMap(document.getElementById('power-search').value, document.getElementById('power-filter-level').value);
+  });
+}
+
+// ===== BUDGET COMMAND TAB =====
+function renderBudgets() {
+  const L = LIVE_DATA;
+  const totalBudget = L.budgets.reduce((s,b)=>s+b.budget,0);
+  const highPriority = L.budgets.filter(b=>b.priority==='HIGH'||b.priority==='CRITICAL').length;
+  const totalSchemes = L.schemes.reduce((s,sc)=>s+sc.budget,0);
+
+  document.getElementById('budget-summary-cards').innerHTML = [
+    {label:'Total Tracked Budget',value:'&#8377; '+Math.round(totalBudget/100000)+' L Cr',sub:L.budgets.length+' ministries tracked',cls:'saffron',icon:'&#8377;'},
+    {label:'High Priority Ministries',value:highPriority,sub:'Critical for approvals & policy',cls:'red',icon:'&#9888;'},
+    {label:'Schemes Budget Pool',value:'&#8377; '+(totalSchemes/1000).toFixed(0)+'K Cr',sub:L.schemes.length+' flagship schemes',cls:'green',icon:'&#127919;'},
+    {label:'States Profiled',value:Object.keys(L.stateMetrics).length,sub:'GDP, projects, sectors mapped',cls:'blue',icon:'&#127758;'},
+  ].map(c=>`<div class="stat-card ${c.cls}"><div class="icon">${c.icon}</div><div class="label">${c.label}</div><div class="value">${c.value}</div><div class="sub">${c.sub}</div></div>`).join('');
+
+  // Ministry budget chart
+  const sorted = [...L.budgets].sort((a,b)=>b.budget-a.budget);
+  new Chart(document.getElementById('chart-ministry-budget'), {
+    type:'bar',
+    data:{
+      labels:sorted.map(b=>b.ministry.replace('Ministry of ','')),
+      datasets:[{
+        data:sorted.map(b=>b.budget),
+        backgroundColor:sorted.map(b=>b.priority==='CRITICAL'?'#ef4444':(b.priority==='HIGH'?'#FF9933':'#3b82f6')),
+        borderRadius:4, borderWidth:0
+      }]
+    },
+    options:{
+      responsive:true, indexAxis:'y',
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:item=>'Rs '+item.raw.toLocaleString()+' Crore'}}},
+      scales:{x:{beginAtZero:true,grid:{color:'#1e2a4a33'},ticks:{callback:v=>(v/1000)+'K Cr'}},y:{grid:{display:false},ticks:{font:{size:10}}}}
+    }
+  });
+
+  // Schemes list
+  document.getElementById('schemes-list').innerHTML = L.schemes.map(sc=>`
+    <div class="scheme-card">
+      <div class="sc-top">
+        <div class="sc-name">${sc.name}</div>
+        <div class="sc-budget">&#8377; ${sc.budget>0?sc.budget.toLocaleString()+' Cr':'Platform'}</div>
+      </div>
+      <div class="sc-desc">${sc.desc}</div>
+      <div class="sc-meta">
+        <span>${sc.ministry}</span>
+        <span>${sc.beneficiaries}</span>
+        <span>${sc.status}</span>
+      </div>
+      <div class="sc-action">&#9989; ${sc.actionable}</div>
+    </div>
+  `).join('');
+
+  // State metrics
+  document.getElementById('state-metrics').innerHTML = Object.entries(L.stateMetrics).map(([name,s])=>`
+    <div class="state-card">
+      <div class="stc-name">${name}</div>
+      <div class="stc-grid">
+        <div class="stc-label">GSDP:</div><div class="stc-val">${s.gdp}</div>
+        <div class="stc-label">Population:</div><div class="stc-val">${s.population}</div>
+        <div class="stc-label">Central Funds:</div><div class="stc-val">${s.centralFunds}</div>
+        <div class="stc-label">Top Sectors:</div><div class="stc-val">${s.topSector}</div>
+      </div>
+      <div class="stc-projects">Key Projects: ${s.keyProjects.join(', ')}</div>
+    </div>
+  `).join('');
+}
+
+// ===== ACTION CENTER TAB =====
+function initActionCenter() {
+  const L = LIVE_DATA;
+
+  // Meeting Prep search
+  document.getElementById('meeting-search').addEventListener('input', debounce(()=>{
+    const q = document.getElementById('meeting-search').value.toLowerCase().trim();
+    if (q.length < 2) { document.getElementById('meeting-results').innerHTML=''; return; }
+    const matches = L.currentPostings.filter(p=>p.name.toLowerCase().includes(q)||p.ministry.toLowerCase().includes(q)).slice(0,5);
+    document.getElementById('meeting-results').innerHTML = matches.map((p,i)=>`
+      <div class="predictor-card" onclick="generateBriefing(${i})" data-midx="${i}" style="cursor:pointer">
+        <div class="pc-name">${p.name}</div>
+        <div class="pc-info">${p.designation} &bull; ${p.ministry}</div>
+      </div>
+    `).join('');
+    window._meetingMatches = matches;
+  },300));
+
+  // Opportunity filter
+  const renderOpps = ()=>{
+    const sector = document.getElementById('opp-sector').value;
+    const minBudget = parseInt(document.getElementById('opp-budget').value)||0;
+    const sectorMap = {
+      'Infrastructure':['Road Transport','Railways','Housing','Jal Shakti'],
+      'Technology':['Electronics & IT','Commerce'],
+      'Health':['Health'],
+      'Agriculture':['Agriculture'],
+      'Energy':['Power','Environment'],
+      'Finance':['Finance'],
+      'Education':['Education'],
+      'Manufacturing':['Commerce','DPIIT'],
+      'Defence':['Defence']
+    };
+    let schemes = L.schemes.filter(sc=>{
+      if (minBudget && sc.budget < minBudget) return false;
+      if (sector) {
+        const depts = sectorMap[sector]||[];
+        if (!depts.some(d=>sc.ministry.includes(d))) return false;
+      }
+      return true;
+    });
+    let budgets = L.budgets.filter(b=>{
+      if (minBudget && b.budget < minBudget) return false;
+      if (sector) {
+        const depts = sectorMap[sector]||[];
+        if (!depts.some(d=>b.ministry.includes(d))) return false;
+      }
+      return true;
+    });
+
+    document.getElementById('opportunity-list').innerHTML =
+      '<div style="font-size:13px;color:var(--text2);margin-bottom:12px">'+budgets.length+' ministries and '+schemes.length+' schemes match</div>' +
+      budgets.map(b=>`<div class="opp-card">
+        <div class="oc-top"><div class="oc-name">${b.ministry}</div><div class="oc-budget">&#8377; ${b.budget.toLocaleString()} Cr</div></div>
+        <div class="oc-ministry">${b.secretary?'Secretary: '+b.secretary:''} &bull; Priority: ${b.priority} &bull; Change: ${b.change}</div>
+        <div class="oc-desc">${b.disbursable}</div>
+        <div class="oc-tags">${b.keySchemes.map(s=>'<span class="oc-tag">'+s+'</span>').join('')}</div>
+      </div>`).join('') +
+      (schemes.length?'<h4 style="margin:16px 0 8px;color:var(--text2);font-size:13px">Related Schemes:</h4>':'') +
+      schemes.map(sc=>`<div class="opp-card">
+        <div class="oc-top"><div class="oc-name">${sc.name}</div><div class="oc-budget">&#8377; ${sc.budget.toLocaleString()} Cr</div></div>
+        <div class="oc-ministry">${sc.ministry} &bull; ${sc.status}</div>
+        <div class="oc-desc">${sc.desc}</div>
+        <div class="oc-action">${sc.actionable}</div>
+      </div>`).join('');
+  };
+  document.getElementById('opp-sector').addEventListener('change',renderOpps);
+  document.getElementById('opp-budget').addEventListener('change',renderOpps);
+  renderOpps();
+
+  // Stakeholder mapping
+  const stakeData = {
+    highway:{title:'Highway / Road Project Approval Chain',steps:[
+      {step:'Step 1: DPR Preparation',who:'State PWD / NHAI Regional Officer',detail:'Prepare Detailed Project Report. Engage consultants. Environmental & social assessment.',time:'3-6 months'},
+      {step:'Step 2: Environmental Clearance',who:'MoEFCC Secretary (Leena Nandan) + Expert Appraisal Committee',detail:'Apply via Parivesh portal. EIA study mandatory for >100 Cr projects. Public hearing in affected districts.',time:'4-6 months'},
+      {step:'Step 3: Land Acquisition',who:'District Collector + State Revenue Secretary',detail:'LARR Act process. Social Impact Assessment. R&R Plan. Market value + 100% solatium.',time:'6-18 months'},
+      {step:'Step 4: Technical Approval',who:'MoRTH Secretary + Chief Engineer NHAI',detail:'Technical sanction. Cost estimation. Alignment finalization.',time:'2-3 months'},
+      {step:'Step 5: Financial Approval',who:'Finance Secretary (Expenditure) + PIB/EFC',detail:'Projects >500 Cr need PIB clearance. EFC for 100-500 Cr. Secretary-level for <100 Cr.',time:'2-4 months'},
+      {step:'Step 6: Tender & Award',who:'NHAI Chairman + Project Director',detail:'Open competitive bidding via GeM/CPPP. HAM/BOT/EPC model selection.',time:'3-6 months'},
+      {step:'Step 7: Execution & Monitoring',who:'NHAI Regional Office + PM Gati Shakti',detail:'Progress monitoring on Gati Shakti dashboard. Quarterly review by Secretary.',time:'2-4 years'},
+    ]},
+    factory:{title:'Manufacturing / Factory Setup Approval Chain',steps:[
+      {step:'Step 1: Site Selection & Zoning',who:'State Industries Secretary + District Collector',detail:'Industrial area allocation. Land use change if needed. Single Window Clearance system.',time:'1-3 months'},
+      {step:'Step 2: Environmental Clearance',who:'State Environment Dept or MoEFCC',detail:'State-level for <50 Cr. Central for Red/Orange category. Consent to Establish from SPCB.',time:'3-6 months'},
+      {step:'Step 3: Building & Fire Safety',who:'Local Municipal Authority + Fire Department',detail:'Building plan approval. Fire NOC. Factory license under Factories Act.',time:'1-2 months'},
+      {step:'Step 4: Utility Connections',who:'State Electricity Board + State Industrial Dev Corp',detail:'Power connection. Water supply. Gas pipeline if needed.',time:'1-3 months'},
+      {step:'Step 5: PLI Registration',who:'DPIIT Secretary (Anurag Jain) + Sector Ministry',detail:'Apply for PLI benefits if eligible. 14 sectors covered. Investment threshold varies.',time:'30-60 days'},
+      {step:'Step 6: GST & Compliance',who:'State GST Commissioner + CBIC',detail:'GST registration. Import license if needed. BIS certification for products.',time:'15-30 days'},
+    ]},
+    startup:{title:'Startup / FDI Setup Approval Chain',steps:[
+      {step:'Step 1: DPIIT Recognition',who:'DPIIT Secretary (Anurag Jain)',detail:'Apply on Startup India portal. Must be <10 years old, <100 Cr turnover, working on innovation.',time:'7-15 days'},
+      {step:'Step 2: Tax Benefits',who:'Inter-Ministerial Board under DPIIT',detail:'80-IAC tax exemption for 3 years. Angel tax exemption. Self-certification for labour laws.',time:'30-45 days'},
+      {step:'Step 3: FDI Route (if foreign investment)',who:'Concerned Ministry Secretary + RBI',detail:'Automatic route for most sectors. Government route for defence, media, telecom, insurance.',time:'30-90 days'},
+      {step:'Step 4: Fund Access',who:'SIDBI + Fund of Funds',detail:'SIDBI Fund of Funds (Rs 10,000 Cr). AIF registration with SEBI if raising fund.',time:'60-90 days'},
+      {step:'Step 5: IP Protection',who:'Controller General of Patents, DPIIT',detail:'Fast-track patent examination for startups. 80% fee rebate.',time:'3-6 months'},
+    ]},
+    tech:{title:'Technology / IT Project (Government) Approval Chain',steps:[
+      {step:'Step 1: Project Proposal',who:'Ministry IT Division + NIC',detail:'DPR preparation. Alignment with Digital India framework. NIC/NICSI empanelment.',time:'1-2 months'},
+      {step:'Step 2: Technical Evaluation',who:'MeitY Secretary (S. Krishnan) + STQC',detail:'Technical standards compliance. Security audit requirements. Cloud-first policy alignment.',time:'1-3 months'},
+      {step:'Step 3: Procurement',who:'GeM Portal + GFR Rules',detail:'Mandatory GeM for software/SaaS. Open tender for custom development >25 Lakh.',time:'1-3 months'},
+      {step:'Step 4: Data & Security',who:'CERT-In + Data Protection Board',detail:'DPDP Act compliance. Data localization for sensitive categories. Security audit.',time:'Ongoing'},
+      {step:'Step 5: Implementation',who:'Line Ministry IT Cell + NIC/Vendor',detail:'Agile delivery. User acceptance testing. Training and change management.',time:'6-18 months'},
+    ]},
+    realestate:{title:'Real Estate / Housing Project Approval Chain',steps:[
+      {step:'Step 1: Land Title & Zoning',who:'District Collector + Town Planning Authority',detail:'Title verification. Zoning/land use check. Conversion if agricultural land.',time:'1-3 months'},
+      {step:'Step 2: RERA Registration',who:'State RERA Authority',detail:'Mandatory for projects >500 sqm or >8 units. Project details, timeline, escrow account.',time:'30 days'},
+      {step:'Step 3: Environmental Clearance',who:'State Environment Impact Assessment Authority',detail:'Required for >20,000 sqm built-up. EIA study. Green building norms.',time:'3-6 months'},
+      {step:'Step 4: Building Permission',who:'Municipal Commissioner / Development Authority',detail:'Building plan sanction. FAR/FSI compliance. Structural safety certificate.',time:'1-3 months'},
+      {step:'Step 5: PMAY Subsidy (if applicable)',who:'MoHUA Secretary + NHB/HUDCO',detail:'CLSS for EWS/LIG/MIG. Subsidy up to Rs 2.67 lakh. Through scheduled banks.',time:'30-60 days'},
+    ]},
+    energy:{title:'Power / Renewable Energy Project Approval Chain',steps:[
+      {step:'Step 1: Site & Resource Assessment',who:'MNRE / State Nodal Agency',detail:'Solar/wind resource assessment. Land identification. Grid connectivity study.',time:'1-3 months'},
+      {step:'Step 2: Environmental & Forest Clearance',who:'MoEFCC + State Forest Dept',detail:'Required for >50 MW. Forest diversion for forest land. Wildlife clearance if near sanctuary.',time:'3-6 months'},
+      {step:'Step 3: Grid Connectivity',who:'CEA + CTU/STU (Power Grid)',detail:'Long-term access application. Connectivity agreement. Transmission charges.',time:'3-6 months'},
+      {step:'Step 4: PPA / Tariff',who:'State DISCOM + SERC / CERC',detail:'Power Purchase Agreement. Tariff determination. Open access regulations.',time:'2-4 months'},
+      {step:'Step 5: Financial Closure',who:'Power Secretary (Pankaj Agarwal) + IREDA',detail:'IREDA/PFC/REC financing. Viability Gap Funding for eligible projects.',time:'2-4 months'},
+    ]},
+    defence:{title:'Defence Procurement Approval Chain',steps:[
+      {step:'Step 1: Requirements (SQR/PSQR)',who:'Service HQ (Army/Navy/Air Force)',detail:'Staff Qualitative Requirements. Preliminary SQR for research phase.',time:'6-12 months'},
+      {step:'Step 2: Categorization',who:'Defence Acquisition Council (DAC), chaired by Defence Minister',detail:'Buy Indian (IDDM), Buy Indian, Buy & Make Indian, Buy Global. Make in India priority.',time:'3-6 months'},
+      {step:'Step 3: AoN (Acceptance of Necessity)',who:'Defence Secretary (Aramane Giridhar) + DPB/DAC',detail:'Defence Procurement Board for <500 Cr. DAC for above. CCS for >2000 Cr.',time:'3-6 months'},
+      {step:'Step 4: RFP & Technical Evaluation',who:'DG Acquisition + Technical Evaluation Committee',detail:'RFP issuance. Field trials. Staff evaluation. User trial in operational conditions.',time:'12-24 months'},
+      {step:'Step 5: Contract Negotiation',who:'Contract Negotiation Committee + Finance (Defence)',detail:'Price negotiation. Offset obligations (30-50% for >2000 Cr). Delivery schedule.',time:'3-6 months'},
+    ]},
+    export:{title:'Export Business Setup Approval Chain',steps:[
+      {step:'Step 1: IEC Registration',who:'DGFT (under Commerce Secretary)',detail:'Import Export Code. Online application via DGFT portal. PAN-based.',time:'3-5 days'},
+      {step:'Step 2: Product Registration',who:'EPC (Export Promotion Council) + BIS/FSSAI',detail:'Register with relevant EPC. Product standards certification. FSSAI for food exports.',time:'15-30 days'},
+      {step:'Step 3: Market Access',who:'Commerce Secretary (S. Aparna) + Indian Missions',detail:'FTA utilization. Market intelligence from Indian embassies. Trade fairs.',time:'Ongoing'},
+      {step:'Step 4: RODTEP/Duty Drawback',who:'DGFT + CBIC',detail:'Remission of Duties on Export Products. File through ICEGATE. Auto-credit to ledger.',time:'Quarterly'},
+      {step:'Step 5: Export Credit',who:'ECGC + EXIM Bank',detail:'Export credit insurance. Buyer credit. Lines of credit for target markets.',time:'15-30 days'},
+    ]},
+    health:{title:'Healthcare Facility Approval Chain',steps:[
+      {step:'Step 1: Location & License',who:'State Health Secretary + District CMO',detail:'Clinical Establishment Act registration. Location NOC. Biomedical waste management.',time:'1-3 months'},
+      {step:'Step 2: NABH/NABL Accreditation',who:'Quality Council of India',detail:'Entry level or full NABH. NABL for diagnostic labs. Required for Ayushman Bharat empanelment.',time:'6-12 months'},
+      {step:'Step 3: Ayushman Bharat Empanelment',who:'Health Secretary (Apurva Chandra) + State SHA',detail:'Apply through PM-JAY portal. Rate packages pre-defined. Monthly settlement.',time:'30-60 days'},
+      {step:'Step 4: Drug License',who:'State Drug Controller + CDSCO',detail:'Drug license for pharmacy. Import license for medical devices. Manufacturing license.',time:'1-3 months'},
+    ]},
+    education:{title:'Educational Institution Approval Chain',steps:[
+      {step:'Step 1: State NOC',who:'State Education Secretary',detail:'Essentiality certificate from state. Land requirement. Infrastructure norms.',time:'3-6 months'},
+      {step:'Step 2: UGC/AICTE Approval',who:'Education Secretary (Sanjay Kumar) + UGC/AICTE',detail:'UGC for universities. AICTE for technical. NCTE for teacher education. BCI for law.',time:'6-12 months'},
+      {step:'Step 3: Affiliation',who:'University Grants Commission / Affiliating University',detail:'Academic compliance. Faculty requirements. Infrastructure audit.',time:'3-6 months'},
+      {step:'Step 4: NEP Compliance',who:'MoE + State Education Dept',detail:'Multidisciplinary approach. Credit framework. Online component mandate.',time:'Ongoing'},
+    ]},
+  };
+
+  document.getElementById('stake-area').addEventListener('change',()=>{
+    const area = document.getElementById('stake-area').value;
+    const data = stakeData[area];
+    if (!data) { document.getElementById('stakeholder-map').innerHTML=''; return; }
+
+    document.getElementById('stakeholder-map').innerHTML =
+      '<h4 style="font-size:15px;color:var(--accent);margin-bottom:4px">'+data.title+'</h4>'+
+      '<div class="stake-chain">' +
+      data.steps.map(s=>`
+        <div class="stake-node">
+          <div class="stake-box">
+            <div class="sb-step">${s.step}</div>
+            <div class="sb-who">${s.who}</div>
+            <div class="sb-detail">${s.detail}</div>
+            <div class="sb-time">&#9200; ${s.time}</div>
+          </div>
+        </div>
+        <div class="stake-line"></div>
+      `).join('') +
+      '</div>';
+  });
+}
+
+// Meeting Briefing Generator
+window.generateBriefing = function(idx) {
+  const p = window._meetingMatches[idx];
+  if (!p) return;
+  const L = LIVE_DATA;
+
+  // Find matching budget data
+  const budgetMatch = L.budgets.find(b=>p.ministry.includes(b.ministry.replace('Ministry of ',''))||b.ministry.includes(p.ministry.split(',')[0]));
+  // Find related schemes
+  const relatedSchemes = L.schemes.filter(sc=>p.ministry.toLowerCase().includes(sc.ministry.toLowerCase())||sc.ministry.toLowerCase().includes(p.ministry.split(',')[0].toLowerCase()));
+  // Find related historical officers from dataset
+  const relatedOfficers = O.filter(o=>o.c===p.cadre && o.l==='Secretary' && o.r==='0').slice(0,5);
+
+  document.getElementById('meeting-results').innerHTML = '';
+  document.getElementById('meeting-search').value = p.name;
+
+  document.getElementById('meeting-briefing').innerHTML = `
+    <div class="briefing-card">
+      <div class="briefing-header">
+        <h2>${p.name}</h2>
+        <div class="bh-role">${p.designation} &mdash; ${p.ministry}</div>
+      </div>
+      <div class="briefing-body">
+        <div class="briefing-section">
+          <h4>&#128100; Officer Profile</h4>
+          <div class="briefing-kv">
+            <div class="bk-label">Cadre:</div><div class="bk-value">${p.cadre}</div>
+            <div class="bk-label">Batch:</div><div class="bk-value">${p.batch} (${2026-p.batch} years in service)</div>
+            <div class="bk-label">Current Since:</div><div class="bk-value">${p.since}</div>
+            <div class="bk-label">Previous Role:</div><div class="bk-value">${p.prev||'N/A'}</div>
+            <div class="bk-label">Seniority:</div><div class="bk-value">${p.level}</div>
+          </div>
+        </div>
+
+        <div class="briefing-section">
+          <h4>&#9878; Authority & Influence</h4>
+          <p>${p.note}</p>
+        </div>
+
+        ${budgetMatch?`<div class="briefing-section">
+          <h4>&#8377; Budget Under Control</h4>
+          <div class="briefing-kv">
+            <div class="bk-label">Total Budget:</div><div class="bk-value" style="color:var(--accent)">Rs ${budgetMatch.budget.toLocaleString()} Crore</div>
+            <div class="bk-label">YoY Change:</div><div class="bk-value">${budgetMatch.change}</div>
+            <div class="bk-label">Disbursable:</div><div class="bk-value">${budgetMatch.disbursable}</div>
+            <div class="bk-label">Priority:</div><div class="bk-value">${budgetMatch.priority}</div>
+          </div>
+          <div style="margin-top:8px;font-size:12px;color:var(--text2)">Key Schemes: ${budgetMatch.keySchemes.join(', ')}</div>
+        </div>`:''}
+
+        ${relatedSchemes.length?`<div class="briefing-section">
+          <h4>&#127919; Schemes Under This Ministry</h4>
+          <ul>${relatedSchemes.map(sc=>'<li><strong>'+sc.name+'</strong> (Rs '+sc.budget.toLocaleString()+' Cr) &mdash; '+sc.desc+'</li>').join('')}</ul>
+        </div>`:''}
+
+        <div class="briefing-section">
+          <h4>&#128161; Talking Points & Approach</h4>
+          <ul>
+            <li>Address as "Secretary" or by designation. IAS officers value protocol.</li>
+            <li>${p.batch<=1990?'Very senior officer (35+ years). Focus on policy-level discussion, not operational details.':'Mid-career senior officer. Comfortable with both policy and operational discussion.'}</li>
+            <li>Reference specific schemes or budget lines to show preparation.</li>
+            ${budgetMatch?'<li>This ministry has a '+budgetMatch.change+' budget change YoY &mdash; '+( budgetMatch.change.startsWith('+') && parseInt(budgetMatch.change)>10?'signals expansion and new initiatives.':'stable allocation, focus on efficiency and outcomes.')+'</li>':''}
+            <li>Follow up within 48 hours with a written note/proposal referencing the meeting.</li>
+          </ul>
+        </div>
+
+        <div class="briefing-section">
+          <h4>&#128203; Quick Research Links</h4>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            <a class="qlink" href="https://www.google.com/search?q=${encodeURIComponent(p.name+' IAS')}" target="_blank" rel="noopener">Google: ${p.name}</a>
+            <a class="qlink" href="https://www.google.com/search?q=${encodeURIComponent(p.ministry+' latest news')}" target="_blank" rel="noopener">Ministry News</a>
+            <a class="qlink" href="https://www.google.com/search?q=${encodeURIComponent(p.ministry+' budget 2025')}" target="_blank" rel="noopener">Budget Details</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+};
+
 // ===== CAREER PREDICTOR TAB =====
 function initPredictor() {
   const searchInput = document.getElementById('predictor-search');
@@ -1440,6 +2083,10 @@ function init() {
   renderTransitions();
   renderPowerCenters();
   initPredictor();
+  renderLiveIntel();
+  initPowerMap();
+  renderBudgets();
+  initActionCenter();
 }
 
 // Map mode change
