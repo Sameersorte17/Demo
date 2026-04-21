@@ -8,6 +8,10 @@
 <script src="dashboard_summary.js"></script>
 <script src="officers_data.js"></script>
 <script src="live_intel_data.js"></script>
+<script src="relationship_data.js"></script>
+<script src="pattern_data.js"></script>
+<script src="ips_ifs_data.js"></script>
+<link rel="manifest" href="manifest.json">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
@@ -323,6 +327,75 @@ a{color:var(--accent);text-decoration:none}
 .footer{text-align:center;padding:28px;color:var(--text2);font-size:12px;border-top:1px solid var(--border);margin-top:40px;background:var(--white)}
 .footer a{color:var(--accent);font-weight:600}
 .footer .source-tag{display:inline-block;margin:4px 3px;padding:2px 8px;background:var(--card2);border-radius:4px;font-size:10px;font-weight:600}
+
+/* Smart Search */
+.smart-search-box{max-width:700px;margin:0 auto 28px}
+.smart-search-input{width:100%;padding:18px 24px;font-size:17px;border:2px solid var(--border);border-radius:16px;background:var(--white);color:var(--text);font-family:inherit;outline:none;transition:all 0.3s;box-shadow:var(--shadow)}
+.smart-search-input:focus{border-color:var(--accent);box-shadow:var(--glow)}
+.smart-search-input::placeholder{color:#b0b5c5}
+.search-suggestions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+.search-pill{padding:6px 14px;border-radius:20px;background:var(--card2);border:1px solid var(--border);color:var(--text2);font-size:12px;cursor:pointer;transition:all 0.2s;font-weight:500}
+.search-pill:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.search-result-section{margin-bottom:24px}
+.search-result-section h3{font-size:15px;font-weight:700;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.search-result-card{padding:16px;background:var(--white);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;transition:all 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.03)}
+.search-result-card:hover{border-color:var(--accent);box-shadow:var(--shadow)}
+
+/* Network Graph */
+.network-container{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;min-height:500px;position:relative;box-shadow:var(--shadow)}
+.network-canvas{width:100%;height:500px;position:relative}
+.conn-card{padding:14px;background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;display:flex;align-items:center;gap:16px;transition:all 0.2s}
+.conn-card:hover{border-color:var(--accent);box-shadow:var(--shadow)}
+.conn-strength{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0}
+.conn-info{flex:1}
+.conn-names{font-weight:700;font-size:14px;color:var(--text)}
+.conn-detail{font-size:12px;color:var(--text2);margin-top:4px}
+.conn-offices{font-size:11px;color:var(--accent);margin-top:4px;font-weight:600}
+
+/* DC Layer */
+.dc-card{padding:16px;background:var(--white);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;transition:all 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.03)}
+.dc-card:hover{border-color:var(--accent);box-shadow:var(--shadow)}
+.dc-card .dc-name{font-weight:700;font-size:14px;color:var(--text)}
+.dc-card .dc-meta{font-size:12px;color:var(--text2);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap}
+.dc-card .dc-meta span{background:var(--card2);padding:2px 8px;border-radius:4px;font-weight:500}
+
+/* IPS/IFS Cards */
+.service-toggle{display:flex;gap:8px;margin-bottom:20px}
+.service-toggle-btn{padding:10px 24px;border:2px solid var(--border);border-radius:10px;background:var(--white);color:var(--text2);font-size:14px;font-weight:700;cursor:pointer;transition:all 0.25s}
+.service-toggle-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 4px 16px rgba(232,93,4,0.25)}
+.force-card{padding:14px;background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;transition:all 0.2s}
+.force-card:hover{border-color:var(--accent);box-shadow:var(--shadow)}
+.mission-card{padding:14px;background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;transition:all 0.2s}
+.mission-card:hover{border-color:var(--blue);box-shadow:var(--shadow)}
+
+/* Pattern Charts */
+.pattern-stat{display:flex;align-items:center;gap:16px;padding:12px;background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:8px}
+.pattern-stat .ps-level{min-width:160px;font-weight:700;font-size:13px;color:var(--text)}
+.pattern-stat .ps-bar{flex:1;height:32px;background:var(--card2);border-radius:6px;overflow:hidden;position:relative}
+.pattern-stat .ps-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding:0 12px;font-size:11px;font-weight:700;color:#fff}
+.pattern-stat .ps-info{min-width:100px;text-align:right;font-size:12px;color:var(--text2)}
+
+/* Tender feed */
+.tender-card{padding:14px;background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;transition:all 0.2s}
+.tender-card:hover{border-color:var(--green);box-shadow:var(--shadow)}
+.tender-card .tc-top{display:flex;justify-content:space-between;align-items:center}
+.tender-card .tc-name{font-weight:700;font-size:13px;color:var(--text)}
+.tender-card .tc-value{font-weight:800;font-size:14px;color:var(--green)}
+.tender-card .tc-meta{font-size:12px;color:var(--text2);margin-top:6px}
+
+/* PDF Export */
+.export-btn{padding:8px 16px;background:linear-gradient(135deg,var(--accent),#d94e00);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:inherit;display:flex;align-items:center;gap:6px}
+.export-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(232,93,4,0.3)}
+
+@media print{
+  .header,.tab-nav,.tri-stripe,.footer,.search-bar,.export-btn,.qlink,.modal-overlay{display:none!important}
+  .tab-content{display:block!important;padding:16px!important;page-break-inside:avoid}
+  .tab-content:not(.print-target){display:none!important}
+  .tab-content.print-target{display:block!important}
+  .briefing-card{border:2px solid #333!important;box-shadow:none!important}
+  body{background:#fff!important;color:#000!important}
+  .stat-card,.power-card,.chart-box,.insight-card{break-inside:avoid;box-shadow:none!important;border:1px solid #ccc!important}
+}
 </style>
 </head>
 <body>
@@ -355,12 +428,13 @@ a{color:var(--accent);text-decoration:none}
       </svg>
     </div>
     <div>
-      <h1>Indian Administrative Service</h1>
-      <div class="subtitle">OFFICERS INTELLIGENCE DASHBOARD &bull; 1951 &ndash; 2020</div>
+      <h1>Indian Bureaucracy Intelligence</h1>
+      <div class="subtitle">IAS &bull; IPS &bull; IFS &bull; OFFICERS INTELLIGENCE DASHBOARD &bull; 1951 &ndash; PRESENT</div>
     </div>
   </div>
-  <div style="display:flex;align-items:center;gap:16px">
-    <span style="font-size:12px;color:var(--text2)" id="last-updated"></span>
+  <div style="display:flex;align-items:center;gap:12px">
+    <button class="export-btn" onclick="exportPDF()" title="Export current view as PDF">&#128196; Export PDF</button>
+    <span style="font-size:12px;color:rgba(255,255,255,0.5)" id="last-updated"></span>
   </div>
 </header>
 
@@ -375,6 +449,11 @@ a{color:var(--accent);text-decoration:none}
   <button class="tab-btn" data-tab="budgets"><span class="tab-icon">&#8377;</span> Budget Command</button>
   <button class="tab-btn" data-tab="actions"><span class="tab-icon">&#9881;</span> Action Center</button>
   <button class="tab-btn" data-tab="predictor"><span class="tab-icon">&#9733;</span> Career Predictor</button>
+  <button class="tab-btn" data-tab="smartsearch"><span class="tab-icon">&#128269;</span> Smart Search</button>
+  <button class="tab-btn" data-tab="network"><span class="tab-icon">&#128279;</span> Network Graph</button>
+  <button class="tab-btn" data-tab="collectors"><span class="tab-icon">&#127963;</span> District Collectors</button>
+  <button class="tab-btn" data-tab="security"><span class="tab-icon">&#128737;</span> IPS / IFS</button>
+  <button class="tab-btn" data-tab="patterns"><span class="tab-icon">&#128200;</span> Career Patterns</button>
   <button class="tab-btn" data-tab="insights"><span class="tab-icon">&#9635;</span> Deep Insights</button>
 </nav>
 
@@ -654,6 +733,160 @@ a{color:var(--accent);text-decoration:none}
   </div>
 </div>
 
+<!-- ==================== TAB: SMART SEARCH ==================== -->
+<div class="tab-content" id="tab-smartsearch">
+  <div class="smart-search-box">
+    <input type="text" class="smart-search-input" id="smart-search-input" placeholder="Ask anything... &quot;Who controls highways?&quot; &quot;Mumbai infrastructure&quot; &quot;Defence budget&quot;">
+    <div class="search-suggestions" id="search-suggestions">
+      <span class="search-pill" data-q="Who controls highways?">Who controls highways?</span>
+      <span class="search-pill" data-q="Mumbai infrastructure budget">Mumbai infrastructure</span>
+      <span class="search-pill" data-q="Defence procurement">Defence procurement</span>
+      <span class="search-pill" data-q="Education policy">Education policy</span>
+      <span class="search-pill" data-q="Startup approvals">Startup approvals</span>
+      <span class="search-pill" data-q="Gujarat officers">Gujarat officers</span>
+      <span class="search-pill" data-q="Women IAS Secretary">Women IAS Secretary</span>
+      <span class="search-pill" data-q="Rs 1 lakh crore schemes">Big budget schemes</span>
+      <span class="search-pill" data-q="Environmental clearance">Environmental clearance</span>
+      <span class="search-pill" data-q="Health ministry">Health ministry</span>
+    </div>
+  </div>
+  <div id="smart-search-results" style="margin-top:20px"></div>
+</div>
+
+<!-- ==================== TAB: NETWORK GRAPH ==================== -->
+<div class="tab-content" id="tab-network">
+  <div class="stats-grid" id="network-stats"></div>
+  <div class="insight-card">
+    <h3>&#128279; Officer Relationship Network</h3>
+    <div class="insight-sub">Top connections based on shared office postings and overlapping tenures from 151,568 career records</div>
+    <div class="search-bar" style="margin-top:12px">
+      <input type="text" id="network-search" placeholder="Filter by officer name or cadre...">
+      <select id="network-cadre-filter"><option value="">All Cadres</option></select>
+    </div>
+    <div id="network-list" style="margin-top:16px;max-height:600px;overflow-y:auto"></div>
+  </div>
+  <div class="insight-card">
+    <h3>&#9878; Network Insights</h3>
+    <div class="insight-sub">Officers who have worked together the most across their careers</div>
+    <canvas id="chart-network-top" style="max-height:350px"></canvas>
+  </div>
+</div>
+
+<!-- ==================== TAB: DISTRICT COLLECTORS ==================== -->
+<div class="tab-content" id="tab-collectors">
+  <div class="stats-grid" id="dc-stats"></div>
+  <div class="insight-card">
+    <h3>&#127963; District Collectors / Magistrates of India</h3>
+    <div class="insight-sub">Officers who served as District Collector, District Magistrate, or Deputy Commissioner &mdash; extracted from 151,568 career records</div>
+    <div class="search-bar" style="margin-top:12px">
+      <input type="text" id="dc-search" placeholder="Search by officer name, cadre, or district...">
+      <select id="dc-cadre-filter"><option value="">All Cadres</option></select>
+      <select id="dc-status-filter"><option value="">All Status</option><option value="1">Active Officers</option><option value="0">Retired Officers</option></select>
+    </div>
+    <div class="results-count" id="dc-count"></div>
+    <div id="dc-list" style="margin-top:12px;max-height:600px;overflow-y:auto"></div>
+    <div class="pagination" id="dc-pagination" style="margin-top:16px"></div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-box">
+      <h3>&#128202; District Collectors by Cadre</h3>
+      <div class="chart-sub">Number of officers who served as DC/DM in each cadre</div>
+      <canvas id="chart-dc-cadre" style="max-height:400px"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>&#9792; Gender Split Among District Collectors</h3>
+      <div class="chart-sub">Male vs Female officers who served as DC/DM</div>
+      <canvas id="chart-dc-gender" style="max-height:300px"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB: IPS / IFS ==================== -->
+<div class="tab-content" id="tab-security">
+  <div class="service-toggle">
+    <button class="service-toggle-btn active" data-service="ips" onclick="switchService('ips')">&#128737; Indian Police Service (IPS)</button>
+    <button class="service-toggle-btn" data-service="ifs" onclick="switchService('ifs')">&#127758; Indian Foreign Service (IFS)</button>
+  </div>
+
+  <div id="service-ips">
+    <div class="stats-grid" id="ips-stats"></div>
+    <div class="insight-card">
+      <h3>&#128737; Top IPS Officers &amp; Force Commanders</h3>
+      <div class="insight-sub">Directors of CBI, IB, R&AW, DGPs, CAPF Chiefs with budget data</div>
+      <div id="ips-officers" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:16px;margin-top:16px"></div>
+    </div>
+    <div class="insight-card">
+      <h3>&#8377; Central Armed Police Forces &amp; Agencies Budget</h3>
+      <div class="insight-sub">Budget allocation for India's paramilitary and intelligence agencies</div>
+      <canvas id="chart-ips-budget" style="max-height:400px"></canvas>
+      <div id="ips-forces" style="margin-top:20px"></div>
+    </div>
+  </div>
+
+  <div id="service-ifs" style="display:none">
+    <div class="stats-grid" id="ifs-stats"></div>
+    <div class="insight-card">
+      <h3>&#127758; Top Indian Diplomats</h3>
+      <div class="insight-sub">Foreign Secretary, Key Ambassadors, and MEA leadership</div>
+      <div id="ifs-officers" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:16px;margin-top:16px"></div>
+    </div>
+    <div class="insight-card">
+      <h3>&#127760; India's Global Diplomatic Presence</h3>
+      <div class="insight-sub">200+ missions across 195 countries serving 3.2 Cr overseas Indians</div>
+      <div id="ifs-missions" style="margin-top:16px"></div>
+      <canvas id="chart-ifs-regions" style="max-height:350px;margin-top:20px"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB: CAREER PATTERNS ==================== -->
+<div class="tab-content" id="tab-patterns">
+  <div class="stats-grid" id="pattern-stats"></div>
+
+  <div class="insight-card">
+    <h3>&#9200; Average Time at Each Level</h3>
+    <div class="insight-sub">How long IAS officers typically spend at each career level (based on 151,568 posting records)</div>
+    <div id="pattern-time-bars" style="margin-top:16px"></div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-box">
+      <h3>&#128200; Cadre-to-Secretary Pipeline</h3>
+      <div class="chart-sub">Which cadres produce the most Secretary-level officers?</div>
+      <canvas id="chart-cadre-secretary" style="max-height:400px"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>&#9792;&#9794; Gender Promotion Gap</h3>
+      <div class="chart-sub">Average years to reach each level &mdash; Male vs Female</div>
+      <canvas id="chart-gender-gap" style="max-height:400px"></canvas>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <h3>&#128736; Most Common Career Paths</h3>
+    <div class="insight-sub">The typical routes officers take from entry to the top</div>
+    <div id="common-paths" style="margin-top:16px"></div>
+  </div>
+
+  <div class="insight-card">
+    <h3>&#128176; Tender &amp; Procurement Feed</h3>
+    <div class="insight-sub">Active government procurement portals and major tender categories</div>
+    <div id="tender-feed" style="margin-top:16px"></div>
+    <div style="margin-top:16px;padding:16px;background:var(--card2);border-radius:10px">
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px">Quick Access &mdash; Procurement Portals</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a class="qlink" href="https://gem.gov.in" target="_blank" rel="noopener">GeM Portal</a>
+        <a class="qlink" href="https://etenders.gov.in" target="_blank" rel="noopener">Central Public Procurement Portal</a>
+        <a class="qlink" href="https://eprocure.gov.in" target="_blank" rel="noopener">eProcure</a>
+        <a class="qlink" href="https://defproc.gov.in" target="_blank" rel="noopener">Defence Procurement</a>
+        <a class="qlink" href="https://railways.gov.in/tenders" target="_blank" rel="noopener">Railway Tenders</a>
+        <a class="qlink" href="https://nhai.gov.in" target="_blank" rel="noopener">NHAI Tenders</a>
+        <a class="qlink" href="https://ppp.worldbank.org/public-private-partnership/country/india" target="_blank" rel="noopener">PPP Projects India</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ==================== TAB 5: INSIGHTS ==================== -->
 <div class="tab-content" id="tab-insights">
   <!-- Fun Facts -->
@@ -720,16 +953,19 @@ a{color:var(--accent);text-decoration:none}
 
 <!-- Footer -->
 <div class="footer">
-  <strong>IAS Officers Intelligence Dashboard</strong> &bull; Historical Dataset: 1951&ndash;2020 &bull; Live Intel: Updated April 2026
+  <strong>Indian Bureaucracy Intelligence Dashboard</strong> &bull; IAS + IPS + IFS &bull; Historical: 1951&ndash;2020 &bull; Live Intel: April 2026
   <br style="margin-bottom:6px">
   <span class="source-tag">TCPD-IAS Dataset, Ashoka University</span>
   <span class="source-tag">Union Budget 2025-26, Ministry of Finance</span>
   <span class="source-tag">DoPT Transfer Orders</span>
   <span class="source-tag">PIB Press Releases</span>
   <span class="source-tag">State Budget Documents</span>
-  <span class="source-tag">NHAI / DMRC / BMC / MMRDA Annual Reports</span>
+  <span class="source-tag">MHA / Police Forces Reports</span>
+  <span class="source-tag">MEA / Indian Missions Data</span>
+  <span class="source-tag">NHAI / DMRC / BMC / MMRDA</span>
+  <span class="source-tag">GeM / CPPP Procurement</span>
   <br style="margin-bottom:4px">
-  <span style="font-size:11px">Historical data (13,570 officers) from TCPD. Current postings and budgets compiled from official government sources. Verify critical data before use in formal communications.</span>
+  <span style="font-size:11px">13,570 IAS officers (TCPD) &bull; 151,568 career records &bull; 8,467 District Collectors &bull; 200 officer relationship connections &bull; IPS & IFS leadership &bull; 15 tabs &bull; PDF Export &bull; Smart Search</span>
 </div>
 
 <script>
@@ -2089,6 +2325,391 @@ function initPredictor() {
   }, 300));
 }
 
+// ===== SMART SEARCH ENGINE =====
+function initSmartSearch() {
+  const SEARCH_INDEX = [];
+  // Index officers from live data
+  LIVE_DATA.currentPostings.forEach(p => {
+    SEARCH_INDEX.push({type:'officer',name:p.name,title:p.designation,ministry:p.ministry,budget:p.budget,budgetLabel:p.budgetLabel,level:p.level,cadre:p.cadre,batch:p.batch,note:p.note,projects:p.projects||[],
+      keywords:[p.name,p.designation,p.ministry,p.cadre,p.level,...(p.projects||[])].join(' ').toLowerCase()});
+  });
+  // Index budgets
+  LIVE_DATA.budgets.forEach(b => {
+    SEARCH_INDEX.push({type:'budget',name:b.ministry,budget:b.budget,change:b.change,secretary:b.secretary,schemes:b.keySchemes,disbursable:b.disbursable,priority:b.priority,
+      keywords:[b.ministry,b.secretary||'',...b.keySchemes].join(' ').toLowerCase()});
+  });
+  // Index schemes
+  LIVE_DATA.schemes.forEach(sc => {
+    SEARCH_INDEX.push({type:'scheme',name:sc.name,budget:sc.budget,ministry:sc.ministry,desc:sc.desc,beneficiaries:sc.beneficiaries,status:sc.status,actionable:sc.actionable,
+      keywords:[sc.name,sc.ministry,sc.desc,sc.beneficiaries].join(' ').toLowerCase()});
+  });
+  // Index states
+  Object.entries(LIVE_DATA.stateMetrics).forEach(([name,s]) => {
+    SEARCH_INDEX.push({type:'state',name:name,cs:s.cs,gdp:s.gdp,population:s.population,stateBudget:s.stateBudget,topSector:s.topSector,projects:s.keyProjects,
+      keywords:[name,s.cs||'',s.topSector,...s.keyProjects].join(' ').toLowerCase()});
+  });
+  // Index IPS
+  if(typeof IPS_IFS_DATA!=='undefined'){
+    IPS_IFS_DATA.ips.forEach(p=>{
+      SEARCH_INDEX.push({type:'ips',name:p.name,title:p.designation,ministry:p.ministry,budget:p.budget,budgetLabel:p.budgetLabel,level:p.level,note:p.note,projects:p.projects||[],
+        keywords:[p.name,p.designation,p.ministry,'ips','police',...(p.projects||[])].join(' ').toLowerCase()});
+    });
+    IPS_IFS_DATA.ifs.forEach(p=>{
+      SEARCH_INDEX.push({type:'ifs',name:p.name,title:p.designation,ministry:p.ministry,budget:p.budget,budgetLabel:p.budgetLabel,level:p.level,note:p.note,projects:p.projects||[],
+        keywords:[p.name,p.designation,p.ministry,'ifs','foreign','diplomat',...(p.projects||[])].join(' ').toLowerCase()});
+    });
+  }
+  // Index historical officers (top active ones)
+  O.filter(o=>o.r==='0').forEach(o=>{
+    SEARCH_INDEX.push({type:'historical',name:o.n,cadre:o.c,batch:o.y,level:o.l,designation:o.d,office:o.o,gender:o.g,
+      keywords:[o.n||'',o.c||'',o.d||'',o.o||'',o.l||'',o.f||''].join(' ').toLowerCase()});
+  });
+
+  function search(query) {
+    const q = query.toLowerCase().trim();
+    if(q.length<2) return [];
+    const words = q.split(/\s+/);
+    const scored = SEARCH_INDEX.map(item => {
+      let score = 0;
+      words.forEach(w => {
+        if(item.keywords.includes(w)) score += 10;
+        if(item.name && item.name.toLowerCase().includes(w)) score += 20;
+        if(item.type==='officer'||item.type==='ips'||item.type==='ifs') score += 2;
+      });
+      // Exact phrase bonus
+      if(item.keywords.includes(q)) score += 30;
+      return {item, score};
+    }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
+    return scored.slice(0,30);
+  }
+
+  function renderResults(results) {
+    if(results.length===0){
+      document.getElementById('smart-search-results').innerHTML='<div style="text-align:center;padding:40px;color:var(--text2)">No results found. Try different keywords.</div>';
+      return;
+    }
+    const groups = {};
+    results.forEach(r=>{
+      const t = r.item.type;
+      if(!groups[t]) groups[t]=[];
+      groups[t].push(r.item);
+    });
+    const typeLabels = {officer:'&#9878; IAS Officers (Current)',budget:'&#8377; Ministry Budgets',scheme:'&#127919; Government Schemes',state:'&#127470;&#127475; States',ips:'&#128737; IPS Officers',ifs:'&#127758; IFS Diplomats',historical:'&#128100; Officers Database'};
+    let html = '';
+    Object.entries(groups).forEach(([type, items])=>{
+      html += '<div class="search-result-section"><h3>'+(typeLabels[type]||type)+' <span style="font-size:12px;font-weight:500;color:var(--text2)">('+items.length+')</span></h3>';
+      items.slice(0,8).forEach(item=>{
+        if(type==='officer'||type==='ips'||type==='ifs'){
+          html += '<div class="search-result-card"><div style="font-weight:700;color:var(--text)">'+item.name+'</div><div style="font-size:12px;color:var(--accent);margin-top:2px">'+item.title+' &mdash; '+item.ministry+'</div>'+(item.budget?'<div style="font-size:13px;font-weight:700;color:var(--green);margin-top:4px">&#8377; '+item.budget.toLocaleString()+' Crore</div>':'')+'<div style="font-size:12px;color:var(--text2);margin-top:4px">'+item.note+'</div></div>';
+        } else if(type==='budget'){
+          html += '<div class="search-result-card"><div style="font-weight:700;color:var(--text)">'+item.name+'</div><div style="font-size:14px;font-weight:800;color:var(--accent);margin-top:4px">&#8377; '+item.budget.toLocaleString()+' Crore <span style="font-size:12px;color:var(--green)">'+item.change+'</span></div>'+(item.secretary?'<div style="font-size:12px;color:var(--text2);margin-top:4px">Secretary: '+item.secretary+'</div>':'')+'<div style="font-size:11px;color:var(--blue);margin-top:4px">'+item.schemes.join(' | ')+'</div></div>';
+        } else if(type==='scheme'){
+          html += '<div class="search-result-card"><div style="font-weight:700;color:var(--text)">'+item.name+'</div><div style="font-size:13px;color:var(--accent);margin-top:2px">&#8377; '+item.budget.toLocaleString()+' Cr &bull; '+item.ministry+'</div><div style="font-size:12px;color:var(--text2);margin-top:4px">'+item.desc+'</div><div style="font-size:12px;color:#065f46;margin-top:4px;padding:8px;background:#ecfdf5;border-radius:6px">'+item.actionable+'</div></div>';
+        } else if(type==='state'){
+          html += '<div class="search-result-card"><div style="font-weight:700;font-size:15px;color:var(--text)">'+item.name+'</div>'+(item.cs?'<div style="font-size:12px;color:var(--accent);margin-top:2px">CS: '+item.cs+'</div>':'')+'<div style="font-size:12px;color:var(--text2);margin-top:4px">GDP: '+item.gdp+' | Budget: '+(item.stateBudget||'N/A')+' | Population: '+item.population+'</div><div style="font-size:11px;color:var(--blue);margin-top:4px">'+item.projects.join(' | ')+'</div></div>';
+        } else if(type==='historical'){
+          html += '<div class="search-result-card"><div style="font-weight:700;color:var(--text)">'+item.name+'</div><div style="font-size:12px;color:var(--text2);margin-top:2px">'+item.cadre+' &bull; '+item.batch+' batch &bull; '+(item.level||'')+'</div><div style="font-size:12px;color:var(--text2);margin-top:2px">'+(item.designation||'')+' &mdash; '+(item.office||'')+'</div></div>';
+        }
+      });
+      if(items.length>8) html+='<div style="font-size:12px;color:var(--text2);padding:8px">...and '+(items.length-8)+' more</div>';
+      html += '</div>';
+    });
+    document.getElementById('smart-search-results').innerHTML = html;
+  }
+
+  const input = document.getElementById('smart-search-input');
+  input.addEventListener('input', debounce(()=>{ renderResults(search(input.value)); },300));
+  document.querySelectorAll('.search-pill').forEach(pill=>{
+    pill.addEventListener('click',()=>{
+      input.value = pill.dataset.q;
+      renderResults(search(pill.dataset.q));
+    });
+  });
+}
+
+// ===== NETWORK GRAPH =====
+function initNetworkGraph() {
+  const R = typeof REL_DATA !== 'undefined' ? REL_DATA : {connections:[],dcOfficers:[]};
+  const conns = R.connections || [];
+
+  // Stats
+  const uniqueOfficers = new Set();
+  conns.forEach(c=>{uniqueOfficers.add(c.sourceName);uniqueOfficers.add(c.targetName);});
+  const cadres = new Set();
+  conns.forEach(c=>{cadres.add(c.sourceCadre);cadres.add(c.targetCadre);});
+  const totalSharedYears = conns.reduce((s,c)=>s+c.sharedYears,0);
+
+  document.getElementById('network-stats').innerHTML = [
+    {label:'Top Connections',value:conns.length,sub:'Strongest officer pairs',cls:'saffron',icon:'&#128279;'},
+    {label:'Officers in Network',value:uniqueOfficers.size,sub:'Unique officers connected',cls:'green',icon:'&#128100;'},
+    {label:'Cadres Represented',value:cadres.size,sub:'Cross-cadre connections',cls:'blue',icon:'&#127758;'},
+    {label:'Total Shared Service',value:Math.round(totalSharedYears).toLocaleString()+' yrs',sub:'Combined overlapping tenure',cls:'purple',icon:'&#9200;'}
+  ].map(c=>'<div class="stat-card '+c.cls+'"><div class="icon">'+c.icon+'</div><div class="label">'+c.label+'</div><div class="value">'+c.value+'</div><div class="sub">'+c.sub+'</div></div>').join('');
+
+  // Populate cadre filter
+  const cadreSelect = document.getElementById('network-cadre-filter');
+  [...cadres].sort().forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;cadreSelect.appendChild(o);});
+
+  function renderConnections(query,cadre) {
+    let filtered = conns;
+    if(query) filtered = filtered.filter(c=>c.sourceName.toLowerCase().includes(query)||c.targetName.toLowerCase().includes(query));
+    if(cadre) filtered = filtered.filter(c=>c.sourceCadre===cadre||c.targetCadre===cadre);
+
+    document.getElementById('network-list').innerHTML = filtered.slice(0,50).map((c,i)=>{
+      const strength = Math.min(100,Math.round(c.sharedYears/2));
+      const color = strength>60?'#dc2626':(strength>30?'#e85d04':'#2563eb');
+      return '<div class="conn-card"><div class="conn-strength" style="background:'+color+'">'+Math.round(c.sharedYears)+'y</div><div class="conn-info"><div class="conn-names">'+c.sourceName+' &#8596; '+c.targetName+'</div><div class="conn-detail">'+c.sourceCadre+(c.sourceCadre!==c.targetCadre?' / '+c.targetCadre:'')+' &bull; '+c.sharedDays.toLocaleString()+' days overlap</div><div class="conn-offices">Shared: '+c.offices.join(', ')+'</div></div></div>';
+    }).join('') || '<div style="padding:20px;color:var(--text2);text-align:center">No connections match your search.</div>';
+  }
+
+  renderConnections('','');
+  document.getElementById('network-search').addEventListener('input',debounce(()=>{
+    renderConnections(document.getElementById('network-search').value.toLowerCase(),document.getElementById('network-cadre-filter').value);
+  },300));
+  document.getElementById('network-cadre-filter').addEventListener('change',()=>{
+    renderConnections(document.getElementById('network-search').value.toLowerCase(),document.getElementById('network-cadre-filter').value);
+  });
+
+  // Top connections chart
+  const top15 = conns.slice(0,15);
+  new Chart(document.getElementById('chart-network-top'),{
+    type:'bar',
+    data:{
+      labels:top15.map(c=>c.sourceName.split(' ').pop()+' - '+c.targetName.split(' ').pop()),
+      datasets:[{data:top15.map(c=>c.sharedYears),backgroundColor:top15.map((_,i)=>COLORS.palette[i%COLORS.palette.length]),borderRadius:4,borderWidth:0}]
+    },
+    options:{responsive:true,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:item=>item.raw.toFixed(1)+' years shared service'}}},scales:{x:{beginAtZero:true,title:{display:true,text:'Years of Overlapping Service'}},y:{grid:{display:false},ticks:{font:{size:10}}}}}
+  });
+}
+
+// ===== DISTRICT COLLECTORS =====
+function initDCLayer() {
+  const R = typeof REL_DATA !== 'undefined' ? REL_DATA : {dcOfficers:[],dcKeys:[]};
+  const keys = R.dcKeys || ['id','name','cadre','batch','designation','office','active'];
+  const rawDC = (R.dcOfficers||[]).map(arr=>{
+    const obj = {};
+    keys.forEach((k,i)=>obj[k]=arr[i]);
+    return obj;
+  });
+
+  const totalDC = rawDC.length;
+  const activeDC = rawDC.filter(d=>d.active===1).length;
+  const femaleDC = rawDC.filter(d=>{const o=O.find(x=>x.id===d.id);return o&&o.g==='Female'}).length;
+  const cadreCount = new Set(rawDC.map(d=>d.cadre)).size;
+
+  document.getElementById('dc-stats').innerHTML = [
+    {label:'Total DC/DM Officers',value:totalDC.toLocaleString(),sub:'Officers who served as District Collector',cls:'saffron',icon:'&#127963;'},
+    {label:'Currently Active',value:activeDC.toLocaleString(),sub:'Officers still in service',cls:'green',icon:'&#9679;'},
+    {label:'Women Officers',value:femaleDC.toLocaleString(),sub:'Female DC/DM officers',cls:'purple',icon:'&#9792;'},
+    {label:'Cadres',value:cadreCount,sub:'States represented',cls:'blue',icon:'&#127758;'}
+  ].map(c=>'<div class="stat-card '+c.cls+'"><div class="icon">'+c.icon+'</div><div class="label">'+c.label+'</div><div class="value">'+c.value+'</div><div class="sub">'+c.sub+'</div></div>').join('');
+
+  // Cadre filter
+  const dcCadres = [...new Set(rawDC.map(d=>d.cadre))].sort();
+  const sel = document.getElementById('dc-cadre-filter');
+  dcCadres.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
+
+  let dcFiltered = [...rawDC];
+  let dcPage = 1;
+  const DC_PAGE = 50;
+
+  function filterDC(){
+    const q = document.getElementById('dc-search').value.toLowerCase();
+    const cadre = document.getElementById('dc-cadre-filter').value;
+    const status = document.getElementById('dc-status-filter').value;
+    dcFiltered = rawDC.filter(d=>{
+      if(q && !(d.name.toLowerCase().includes(q)||d.cadre.toLowerCase().includes(q)||(d.office||'').toLowerCase().includes(q)||(d.designation||'').toLowerCase().includes(q))) return false;
+      if(cadre && d.cadre!==cadre) return false;
+      if(status!=='' && String(d.active)!==status) return false;
+      return true;
+    });
+    dcPage=1;
+    renderDCList();
+  }
+
+  function renderDCList(){
+    const start=(dcPage-1)*DC_PAGE;
+    const page=dcFiltered.slice(start,start+DC_PAGE);
+    document.getElementById('dc-count').textContent='Showing '+(start+1)+'-'+Math.min(start+DC_PAGE,dcFiltered.length)+' of '+dcFiltered.length.toLocaleString()+' officers';
+    document.getElementById('dc-list').innerHTML = page.map(d=>{
+      const statusBadge = d.active===1?'<span class="badge badge-active">Active</span>':'<span class="badge badge-retired">Retired</span>';
+      return '<div class="dc-card"><div class="dc-name">'+d.name+' '+statusBadge+'</div><div class="dc-meta"><span>'+d.cadre+'</span><span>'+d.batch+' batch</span><span>'+d.designation+'</span>'+(d.office?'<span>'+d.office+'</span>':'')+'</div></div>';
+    }).join('');
+
+    // Pagination
+    const totalPages=Math.ceil(dcFiltered.length/DC_PAGE);
+    if(totalPages<=1){document.getElementById('dc-pagination').innerHTML='';return;}
+    let ph='<button class="page-btn" '+(dcPage===1?'disabled':'')+' onclick="dcGoPage('+(dcPage-1)+')">&#9664; Prev</button>';
+    const range=[1];
+    for(let i=Math.max(2,dcPage-2);i<=Math.min(totalPages-1,dcPage+2);i++)range.push(i);
+    if(totalPages>1)range.push(totalPages);
+    const uniq=[...new Set(range)].sort((a,b)=>a-b);
+    let prev=0;
+    uniq.forEach(p=>{if(p-prev>1)ph+='<span class="page-info">...</span>';ph+='<button class="page-btn '+(p===dcPage?'active':'')+'" onclick="dcGoPage('+p+')">'+p+'</button>';prev=p;});
+    ph+='<button class="page-btn" '+(dcPage===totalPages?'disabled':'')+' onclick="dcGoPage('+(dcPage+1)+')">Next &#9654;</button>';
+    document.getElementById('dc-pagination').innerHTML=ph;
+  }
+  window.dcGoPage=function(p){dcPage=p;renderDCList();document.getElementById('tab-collectors').scrollIntoView({behavior:'smooth'});};
+
+  document.getElementById('dc-search').addEventListener('input',debounce(filterDC,300));
+  document.getElementById('dc-cadre-filter').addEventListener('change',filterDC);
+  document.getElementById('dc-status-filter').addEventListener('change',filterDC);
+  filterDC();
+
+  // DC by cadre chart
+  const cadreCounts={};
+  rawDC.forEach(d=>{cadreCounts[d.cadre]=(cadreCounts[d.cadre]||0)+1;});
+  const sortedCadres=Object.entries(cadreCounts).sort((a,b)=>b[1]-a[1]);
+  new Chart(document.getElementById('chart-dc-cadre'),{
+    type:'bar',data:{labels:sortedCadres.map(c=>c[0]),datasets:[{data:sortedCadres.map(c=>c[1]),backgroundColor:COLORS.palette.map(c=>c+'99'),borderRadius:4,borderWidth:0}]},
+    options:{responsive:true,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true},y:{grid:{display:false},ticks:{font:{size:10}}}}}
+  });
+
+  // Gender chart
+  const genderCounts={Male:0,Female:0};
+  rawDC.forEach(d=>{const o=O.find(x=>x.id===d.id);if(o)genderCounts[o.g]=((genderCounts[o.g]||0)+1);});
+  new Chart(document.getElementById('chart-dc-gender'),{
+    type:'doughnut',data:{labels:['Male','Female'],datasets:[{data:[genderCounts.Male,genderCounts.Female],backgroundColor:['rgba(37,99,235,0.7)','rgba(124,58,237,0.7)'],borderWidth:0,hoverOffset:8}]},
+    options:{responsive:true,cutout:'55%',plugins:{legend:{position:'bottom'}}}
+  });
+}
+
+// ===== IPS / IFS TAB =====
+function initIPSIFS() {
+  if(typeof IPS_IFS_DATA==='undefined') return;
+  const I = IPS_IFS_DATA;
+
+  // IPS Stats
+  const totalIPSBudget = I.ipsBudgets.reduce((s,f)=>s+f.budget,0);
+  document.getElementById('ips-stats').innerHTML = [
+    {label:'IPS Officers Tracked',value:I.ips.length,sub:'Directors, DGPs, Force Commanders',cls:'saffron',icon:'&#128737;'},
+    {label:'Forces & Agencies',value:I.ipsBudgets.length,sub:'CRPF, BSF, CISF, NIA, IB, R&AW...',cls:'blue',icon:'&#9878;'},
+    {label:'Total Security Budget',value:'&#8377; '+Math.round(totalIPSBudget/1000)+'K Cr',sub:'Combined paramilitary + agencies',cls:'red',icon:'&#8377;'},
+    {label:'Personnel Strength',value:'10L+',sub:'Combined armed forces personnel',cls:'green',icon:'&#128100;'}
+  ].map(c=>'<div class="stat-card '+c.cls+'"><div class="icon">'+c.icon+'</div><div class="label">'+c.label+'</div><div class="value">'+c.value+'</div><div class="sub">'+c.sub+'</div></div>').join('');
+
+  // IPS Officers
+  document.getElementById('ips-officers').innerHTML = I.ips.map(p=>{
+    return '<div class="power-card"><div class="pc-top"><div class="pc-name">'+p.name+'</div><span class="pc-level pc-level-secretary">'+p.level+'</span></div><div class="pc-ministry">'+p.designation+' &mdash; '+p.ministry+'</div>'+(p.budget?'<div class="pc-budget"><div class="pc-budget-amount">&#8377; '+p.budget.toLocaleString()+' Crore</div><div class="pc-budget-label">'+(p.budgetLabel||'')+'</div></div>':'')+'<div class="pc-meta"><span>'+(p.cadre||'')+' cadre</span><span>'+(p.batch||'')+' batch</span></div><div class="pc-note">'+p.note+'</div>'+(p.projects?'<div class="pc-projects">'+p.projects.map(pr=>'<span class="pc-project-tag">'+pr+'</span>').join('')+'</div>':'')+'</div>';
+  }).join('');
+
+  // IPS Forces budget chart
+  const sortedForces = [...I.ipsBudgets].sort((a,b)=>b.budget-a.budget);
+  new Chart(document.getElementById('chart-ips-budget'),{
+    type:'bar',data:{labels:sortedForces.map(f=>f.force.replace(/\(.*\)/,'').trim()),datasets:[{data:sortedForces.map(f=>f.budget),backgroundColor:sortedForces.map((_,i)=>COLORS.palette[i%COLORS.palette.length]),borderRadius:4,borderWidth:0}]},
+    options:{responsive:true,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:item=>'Rs '+item.raw.toLocaleString()+' Crore'}}},scales:{x:{beginAtZero:true,ticks:{callback:v=>(v/1000)+'K Cr'}},y:{grid:{display:false},ticks:{font:{size:10}}}}}
+  });
+
+  document.getElementById('ips-forces').innerHTML = sortedForces.map(f=>'<div class="force-card"><div><div style="font-weight:700;font-size:13px;color:var(--text)">'+f.force+'</div><div style="font-size:12px;color:var(--text2);margin-top:4px">'+f.role+'</div></div><div style="text-align:right"><div style="font-weight:800;font-size:15px;color:var(--accent)">&#8377; '+f.budget.toLocaleString()+' Cr</div><div style="font-size:11px;color:var(--text2)">'+f.personnel+' personnel</div></div></div>').join('');
+
+  // IFS Stats
+  const M = I.ifsMissions;
+  document.getElementById('ifs-stats').innerHTML = [
+    {label:'IFS Officers Tracked',value:I.ifs.length,sub:'Ambassadors, Secretaries, Spokespersons',cls:'saffron',icon:'&#127758;'},
+    {label:'Indian Missions',value:M.totalMissions+'+',sub:'Embassies & consulates worldwide',cls:'blue',icon:'&#127963;'},
+    {label:'MEA Budget',value:'&#8377; '+M.meaBudget.toLocaleString()+' Cr',sub:'Ministry of External Affairs',cls:'green',icon:'&#8377;'},
+    {label:'Overseas Indians',value:M.diaspora,sub:'Indian diaspora served globally',cls:'purple',icon:'&#128100;'}
+  ].map(c=>'<div class="stat-card '+c.cls+'"><div class="icon">'+c.icon+'</div><div class="label">'+c.label+'</div><div class="value">'+c.value+'</div><div class="sub">'+c.sub+'</div></div>').join('');
+
+  // IFS Officers
+  document.getElementById('ifs-officers').innerHTML = I.ifs.map(p=>{
+    return '<div class="power-card"><div class="pc-top"><div class="pc-name">'+p.name+'</div><span class="pc-level pc-level-cs">'+p.level+'</span></div><div class="pc-ministry">'+p.designation+' &mdash; '+p.ministry+'</div>'+(p.budget?'<div class="pc-budget"><div class="pc-budget-amount">&#8377; '+p.budget.toLocaleString()+' Crore</div><div class="pc-budget-label">'+(p.budgetLabel||'')+'</div></div>':'')+'<div class="pc-note">'+p.note+'</div>'+(p.projects?'<div class="pc-projects">'+p.projects.map(pr=>'<span class="pc-project-tag">'+pr+'</span>').join('')+'</div>':'')+'</div>';
+  }).join('');
+
+  // IFS Missions
+  document.getElementById('ifs-missions').innerHTML = M.keyRegions.map(r=>'<div class="mission-card"><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:700;font-size:14px;color:var(--text)">'+r.region+'</div><div style="font-size:12px;font-weight:700;color:var(--accent)">'+r.missions+' missions</div></div><div style="font-size:12px;color:var(--text2);margin-top:6px">'+r.keyCountries.join(', ')+' &bull; Trade: '+r.trade+'</div><div style="font-size:12px;color:var(--blue);margin-top:4px;font-weight:600">'+r.priority+'</div></div>').join('');
+
+  // IFS Regions chart
+  new Chart(document.getElementById('chart-ifs-regions'),{
+    type:'bar',data:{labels:M.keyRegions.map(r=>r.region),datasets:[{label:'Missions',data:M.keyRegions.map(r=>r.missions),backgroundColor:COLORS.palette.slice(0,7).map(c=>c+'99'),borderRadius:4,borderWidth:0}]},
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,title:{display:true,text:'Number of Missions'}}}}
+  });
+}
+
+window.switchService = function(svc) {
+  document.getElementById('service-ips').style.display = svc==='ips'?'block':'none';
+  document.getElementById('service-ifs').style.display = svc==='ifs'?'block':'none';
+  document.querySelectorAll('.service-toggle-btn').forEach(b=>{b.classList.toggle('active',b.dataset.service===svc);});
+};
+
+// ===== CAREER PATTERNS =====
+function initPatterns() {
+  const P = typeof PATTERN_DATA !== 'undefined' ? PATTERN_DATA : null;
+  if(!P) return;
+
+  const levels = Object.keys(P.avgTimeAtLevel);
+  const totalPostings = Object.values(P.avgTimeAtLevel).reduce((s,v)=>s+v.count,0);
+  const topPath = P.commonPaths[0];
+  const topCadre = Object.entries(P.cadreToSecretary)[0];
+
+  document.getElementById('pattern-stats').innerHTML = [
+    {label:'Posting Records Analyzed',value:totalPostings.toLocaleString(),sub:'Individual career transitions',cls:'saffron',icon:'&#128200;'},
+    {label:'Career Levels Tracked',value:levels.length,sub:'From Junior Scale to Secretary',cls:'green',icon:'&#128736;'},
+    {label:'Most Common Path',value:topPath.count+' officers',sub:'Full ladder to Secretary',cls:'blue',icon:'&#9733;'},
+    {label:'Top Secretary Producer',value:topCadre[0],sub:topCadre[1]+' Secretary-level officers',cls:'purple',icon:'&#127470;&#127475;'}
+  ].map(c=>'<div class="stat-card '+c.cls+'"><div class="icon">'+c.icon+'</div><div class="label">'+c.label+'</div><div class="value">'+c.value+'</div><div class="sub">'+c.sub+'</div></div>').join('');
+
+  // Time at level bars
+  const maxAvg = Math.max(...Object.values(P.avgTimeAtLevel).map(v=>v.avgYears));
+  document.getElementById('pattern-time-bars').innerHTML = levels.map((lvl,i)=>{
+    const v = P.avgTimeAtLevel[lvl];
+    const pct = (v.avgYears/maxAvg*100).toFixed(0);
+    const color = COLORS.palette[i%COLORS.palette.length];
+    return '<div class="pattern-stat"><div class="ps-level">'+lvl+'</div><div class="ps-bar"><div class="ps-fill" style="width:'+pct+'%;background:'+color+'">'+v.avgYears.toFixed(1)+' yrs</div></div><div class="ps-info">Median: '+v.medianYears.toFixed(1)+' yrs<br>n='+v.count.toLocaleString()+'</div></div>';
+  }).join('');
+
+  // Cadre to Secretary chart
+  const cadreEntries = Object.entries(P.cadreToSecretary);
+  new Chart(document.getElementById('chart-cadre-secretary'),{
+    type:'bar',data:{labels:cadreEntries.map(e=>e[0]),datasets:[{data:cadreEntries.map(e=>e[1]),backgroundColor:cadreEntries.map((_,i)=>COLORS.palette[i%COLORS.palette.length]),borderRadius:4,borderWidth:0}]},
+    options:{responsive:true,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:item=>item.raw+' Secretary-level officers'}}},scales:{x:{beginAtZero:true,title:{display:true,text:'Officers who reached Secretary level'}},y:{grid:{display:false},ticks:{font:{size:10}}}}}
+  });
+
+  // Gender gap chart
+  const gapLevels = Object.keys(P.genderGap);
+  new Chart(document.getElementById('chart-gender-gap'),{
+    type:'bar',data:{
+      labels:gapLevels,
+      datasets:[
+        {label:'Male (avg yrs to reach)',data:gapLevels.map(l=>P.genderGap[l].maleAvgYearsToReach),backgroundColor:'rgba(37,99,235,0.6)',borderRadius:4},
+        {label:'Female (avg yrs to reach)',data:gapLevels.map(l=>P.genderGap[l].femaleAvgYearsToReach),backgroundColor:'rgba(124,58,237,0.6)',borderRadius:4}
+      ]
+    },
+    options:{responsive:true,plugins:{legend:{position:'top'},tooltip:{callbacks:{afterBody:items=>{const l=gapLevels[items[0].dataIndex];const g=P.genderGap[l];return 'Male: n='+g.maleCount.toLocaleString()+' | Female: n='+g.femaleCount.toLocaleString();}}}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,title:{display:true,text:'Avg Years to Reach Level'}}}}
+  });
+
+  // Common paths
+  document.getElementById('common-paths').innerHTML = P.commonPaths.slice(0,10).map((p,i)=>{
+    const steps = p.path.split(' -> ');
+    const maxCount = P.commonPaths[0].count;
+    const pct = (p.count/maxCount*100).toFixed(0);
+    return '<div style="margin-bottom:12px"><div style="display:flex;align-items:center;gap:12px;margin-bottom:4px"><span style="font-size:16px;font-weight:800;color:var(--accent);min-width:30px">#'+(i+1)+'</span><span style="font-size:13px;font-weight:700;color:var(--text)">'+p.count.toLocaleString()+' officers</span></div><div style="display:flex;gap:4px;flex-wrap:wrap;margin-left:42px">'+steps.map(s=>'<span style="padding:4px 10px;background:var(--card2);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:600;color:var(--text2)">'+s+'</span>').join('<span style="color:var(--accent);font-weight:700;padding:0 2px">&#8594;</span>')+'</div><div class="hbar-track" style="height:8px;margin:8px 0 0 42px;max-width:500px"><div class="hbar-fill" style="width:'+pct+'%;background:'+COLORS.palette[i%COLORS.palette.length]+';min-width:0;padding:0"></div></div></div>';
+  }).join('');
+
+  // Tender feed
+  const tenders = [
+    {name:'GeM (Government e-Marketplace)',value:'Rs 4.5L+ Cr GMV',desc:'Centralized procurement. 60L+ products. 75K+ buyer orgs. Mandatory for all central purchases.',category:'All goods & services',url:'https://gem.gov.in'},
+    {name:'Central Public Procurement Portal',value:'10,000+ active',desc:'All central government tenders above Rs 10 Lakh. BID submission, corrigenda, award details.',category:'Works, goods, services',url:'https://eprocure.gov.in'},
+    {name:'NHAI Road Projects',value:'Rs 2.87L Cr',desc:'Highway BOT/HAM/EPC contracts. Bharatmala Phase 1-3. Expressway projects.',category:'Road construction',url:'https://nhai.gov.in'},
+    {name:'Railway Procurement',value:'Rs 2.62L Cr',desc:'Vande Bharat coaches, track renewal, station redevelopment, signaling (Kavach).',category:'Rolling stock, infra',url:'https://railways.gov.in'},
+    {name:'Defence Procurement (DAP 2024)',value:'Rs 1.8L Cr capital',desc:'Buy Indian IDDM priority. 75% domestic content. Offset obligations for >2000 Cr.',category:'Defence equipment',url:'https://defproc.gov.in'},
+    {name:'Smart Cities Mission',value:'Rs 48,000 Cr',desc:'ICT infrastructure, urban mobility, e-governance solutions across 100 cities.',category:'Urban tech & infra',url:'https://smartcities.gov.in'},
+    {name:'PM Gati Shakti',value:'Multi-modal',desc:'Integrated infrastructure projects. Real-time monitoring. 16 ministries coordinated.',category:'Logistics & transport',url:'https://pmgatishakti.gov.in'},
+    {name:'India Semiconductor Mission',value:'Rs 76,000 Cr',desc:'Fab setup, ATMP, design companies. 50% capital subsidy for approved projects.',category:'Electronics & semicon',url:'https://ism.gov.in'}
+  ];
+
+  document.getElementById('tender-feed').innerHTML = tenders.map(t=>'<div class="tender-card"><div class="tc-top"><div class="tc-name">'+t.name+'</div><div class="tc-value">'+t.value+'</div></div><div class="tc-meta">'+t.desc+'<br><span style="color:var(--accent);font-weight:600">Category: '+t.category+'</span></div></div>').join('');
+}
+
+// ===== PDF EXPORT =====
+function exportPDF() {
+  const activeTab = document.querySelector('.tab-content.active');
+  if(!activeTab) return;
+  activeTab.classList.add('print-target');
+  window.print();
+  setTimeout(()=>activeTab.classList.remove('print-target'),1000);
+}
+
 // ===== RENDER ALL =====
 function init() {
   renderSummaryCards();
@@ -2115,6 +2736,11 @@ function init() {
   initPowerMap();
   renderBudgets();
   initActionCenter();
+  initSmartSearch();
+  initNetworkGraph();
+  initDCLayer();
+  initIPSIFS();
+  initPatterns();
 }
 
 // Map mode change

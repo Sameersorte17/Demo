@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bureaucrats Analytics Dashboard</title>
+    <style>
+        :root {
+            --color-bg-primary: #f8fafc;
+            --color-bg-secondary: #ffffff;
+            --color-text-primary: #1e293b;
+            --color-text-secondary: #64748b;
+            --color-accent: #3b82f6;
+            --color-accent-hover: #2563eb;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-border: #e2e8f0;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-bg-primary: #0f172a;
+                --color-bg-secondary: #1e293b;
+                --color-text-primary: #f1f5f9;
+                --color-text-secondary: #94a3b8;
+                --color-border: #334155;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: var(--color-bg-secondary);
+            border-bottom: 2px solid var(--color-border);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--color-accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--color-text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .controls {
+            background: var(--color-bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--color-border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 0.75rem;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--color-bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-accent);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: var(--color-bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--color-text-primary);
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        .bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .bar-label {
+            min-width: 140px;
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+            padding-right: 1rem;
+        }
+
+        .bar-track {
+            flex: 1;
+            height: 28px;
+            background: var(--color-bg-primary);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-accent), var(--color-accent-hover));
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 0.75rem;
+            transition: width 0.5s ease;
+        }
+
+        .bar-value {
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .table-container {
+            background: var(--color-bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .search-box {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            width: 300px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            max-height: 600px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--color-bg-primary);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--color-text-secondary);
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--color-border);
+            font-size: 0.9rem;
+        }
+
+        tr:hover {
+            background: var(--color-bg-primary);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: var(--color-accent);
+            color: white;
+        }
+
+        .badge-success {
+            background: var(--color-success);
+        }
+
+        .badge-warning {
+            background: var(--color-warning);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--color-text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏛️ Bureaucrats Analytics Dashboard</h1>
+        <p>Comprehensive analysis of IAS officers - Cadre, Experience, Education & Demographics</p>
+        <p style="font-size: 0.85rem; margin-top: 0.5rem; color: var(--color-warning);">
+            💡 <strong>Setup:</strong> Open this HTML file in a text editor, find <code>const EMBEDDED_DATA = null;</code> and replace <code>null</code> with your JSON data from paste.txt
+        </p>
+    </div>
+
+    <div class="container">
+        <div class="controls">
+            <div class="filters">
+                <div class="filter-group">
+                    <label>Cadre Filter</label>
+                    <select id="cadreFilter">
+                        <option value="">All Cadres</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Secretary Level</label>
+                    <select id="levelFilter">
+                        <option value="">All Levels</option>
+                        <option value="Secretary">Secretary</option>
+                        <option value="Additional Secretary">Additional Secretary</option>
+                        <option value="Joint Secretary">Joint Secretary</option>
+                        <option value="Secretary Equivalent">Secretary Equivalent</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Gender</label>
+                    <select id="genderFilter">
+                        <option value="">All</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Place of Domicile</label>
+                    <select id="domicileFilter">
+                        <option value="">All States</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Officers</div>
+                <div class="stat-value" id="totalOfficers">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Cadres</div>
+                <div class="stat-value" id="totalCadres">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Secretary Level</div>
+                <div class="stat-value" id="secretaryCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Female Officers</div>
+                <div class="stat-value" id="femaleCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Experience Years</div>
+                <div class="stat-value" id="avgExperience">0</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3 class="chart-title">📊 Top 10 Cadres</h3>
+                <div class="chart-container" id="cadreChart"></div>
+            </div>
+            <div class="chart-card">
+                <h3 class="chart-title">🎓 Education Categories</h3>
+                <div class="chart-container" id="educationChart"></div>
+            </div>
+            <div class="chart-card">
+                <h3 class="chart-title">💼 Experience Categories</h3>
+                <div class="chart-container" id="experienceChart"></div>
+            </div>
+            <div class="chart-card">
+                <h3 class="chart-title">📍 Top Domicile States</h3>
+                <div class="chart-container" id="domicileChart"></div>
+            </div>
+            <div class="chart-card">
+                <h3 class="chart-title">👔 Secretary Level Distribution</h3>
+                <div class="chart-container" id="levelChart"></div>
+            </div>
+            <div class="chart-card">
+                <h3 class="chart-title">⚖️ Gender Distribution</h3>
+                <div class="chart-container" id="genderChart"></div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="table-title">📋 Bureaucrats Directory</h3>
+                <input type="text" id="searchBox" class="search-box" placeholder="Search by name, cadre, or designation...">
+            </div>
+            <div class="table-wrapper">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Cadre</th>
+                            <th>Highest Level</th>
+                            <th>Gender</th>
+                            <th>Domicile</th>
+                            <th>Education</th>
+                            <th>Languages</th>
+                            <th>Allotment Year</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td colspan="8" class="loading">Loading data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let bureaucratsData = [];
+        let filteredData = [];
+
+                const EMBEDDED_DATA = {
+    "AM002500": {
+        "Name": "Ms. P P Trivedi",
+        "Cadre": "Assam Meghalya",
+        "Allotment_Year": "1953",
+        "Date_of_Birth": "1930-02-27",
+        "Date_of_Joining": "1953-07-01",
+        "Source_of_Recruitment": "Direct Recruitment",
+        "Gender": "Female",
+        "Place_of_Domicile": "Gujarat",
+        "Mother_Tongue": "Gujarati",
+        "Languages_Known": "Gujarati Hindi Marathi Punjabi",
+        "Retirement_Reason": "Superannuated",
+        "Source": "Supremo",
+        "Gender_Source": "Supremo",
+        "Education": [
+            {
+                "Qualification": "Graduate",
+                "Subject": "Mathematics",
+                "Category_of_Subject": "Engineering, Technology and Mathematics",
+                "Division": "First"
+            },
+            {
+                "Qualification": "Graduate",
+                "Subject": "Mathematics",
+                "Category_of_Subject": "Engineering, Technology and Mathematics",
+                "Division": "First"
+            }
+        ],
+        "Experience": [
+            {
+                "Designation": "Secretary",
+                "Level": "Secretary",
+                "Office": "M/o Personnel, Public Grievances & Pensions",
+                "Organisation": "Centre",
+                "Field_of_Experience": "Personnel Training",
+                "Category_of_Experience": "Personnel and General Administration",
+                "Start_Date": "1986-07-01",
+                "End_Date": "1988-02-01"
+            },
+            {
+                "Designation": "Secretary",
+                "Level": "Secretary",
+                "Office": "M/o Personnel, Public Grievances & Pensions",
+                "Organisation": "Centre",
+                "Field_of_Experience": "Personnel Training",
+                "Category_of_Experience": "Personnel and General Administration",
+                "Start_Date": "1986-07-01",
+                "End_Date": "1988-02-01"
+            },
+            {
+                "Designation": "Secretary",
+                "Level": "Secretary",
+                "Office": "M/o Personnel, Public Grievances & Pensions",
+                "Organisation": "Centre",
+                "Field_of_Experience": "Personnel Training",
+                "Category_of_Experience": "Personnel and General Administration",
+                "Start_Date": "1986-07-01",
+                "End_Date": "1988-02-01"
+            },
+            {
+                "Designation": "Secretary",
+                "Level": "Secretary",
+                "Office": "M/o Personnel, Public Grievances & Pensions",
+                "Organisation": "Centre",
+                "Field_of_Experience": "Personnel Training",
+                "Category_of_Experience": "Personnel and General Administration",
+                "Start_Date": "1986-07-01",
+                "End_Date": "1988-02-01"
+            },
+            {
+                "Designation": "Secretary",
+                "Level": "Secretary",
+                "Office": "M/o Personnel, Public Grievances & Pensions",
+                "Organisation": "Centre",
+                "Field_of_Experience": "Personnel Training",
+                "Category_of_Experience": "Personnel and General Administration",
+                "Start_Date": "1986-07-01",
+                "End_Date": "1988-02-01"
+            },
+            {
+                "Designation": "Secretary",
+                "Level": "Secretary",
+                "Office": "M/o Personnel, Public Grievances & Pensions",
+                "Organisation": "Centre",
+                "Field_of_Experience": "Personnel Training",
+                "Category_of_Experience": "Personnel and General Administration",
+                "Start_Date": "1986-07-01",
+                "End_Date": "1988-02-01"
+            },
+            {
+                "Designation": "Secretary",
+                "Level": "Secretary",
+                "Office": "M/o Personnel, Public Grievances & Pensions",
+                "Organisation": "Centre",
+                "Field_of_Experience": "Personnel Training",
+                "Category_of_Experience": "Personnel and General Administration",
+                "Start_Date": "1986-07-01",
+                "End_Date": "1988-02-01"
+            },
+            {
+                "Designation": "Secretary",
+                "Level": "Secretary",
+                "Office": "M/o Personnel, Public Grievances & Pensions",
+                "Organisation": "Centre",
+                "Field_of_Experience": "Personnel Training",
+                "Category_of_Experience": "Personnel and General Administration",
+                "Start_Date": "1986-07-01",
+                "End_Date": "1988-02-01"
+            },
+            {
+                "Designation": "Secretary",
+                "Level": "Secretary",
+                "Office": "M/o Personnel, Public Grievances & Pensions",
+                "Organisation": "Centre",
+                "Field_of_Experience": "Personnel Training",
+                "Category_of_Experience": "Personnel and General Administration",
+                "Start_Date": "1986-07-01",
+                "End_Date": "1988-02-01"
+            },
+            {
+                "Designation": "Secretary",
+                "Level": "Secretary",
+                "Office": "M/o Personnel, Public Grievances & Pensions",
+                "Organisation": "Centre",
+                "Field_of_Experience": "Personnel Training",
+                "Category_of_Experience": "Personnel and General Administration",
+                "Start_Date": "1986-07-01",
+                "End_Date": "1988-02-01"
+            },
+            {
+                "Designation": "Secretary",
+                "Level": "Secretary",
+                "Office": "M/o Personnel, Public Grievances & Pensions",
+                "Organisation": "Centre",
+                "Field_of_Experience": "Personnel Training",
+                "Category_of_Experience": "Personnel and General Administration",
+                "Start_Date": "1986-07-01",
+                "End_Date": "1988-02-01"
+            },
+            {
+                "Designation": "Secretary",
+                "Level": "Secretary",
+                "Office": "M/o Personnel, Public Grievances & Pensions",
+                "Organisation": "Centre",
+                "Field_of_Experience": "Personnel Training",
+                "Category_of_Experience": "Personnel and General Administration",
+                "Start_Date": "1986-07-01",
+                "End_Date": "1988-02-01"
+            },
+            {
+                "Designation": "Secretary",
+                "Level": "Secretary",
+                "Office": "M/o Personnel, Public Grievances & Pensions",
+                "Organisation": "Centre",
+                "Field_of_Experience": "Personnel Training",
+                "Category_of_Experience": "Personnel and General Administration",
+                "Start_Date": "1986-07-01",
+                "End_Date": "1988-02-01"
+            },
+            {
+                "Designation": "Secretary",
+                "Level": "Secretary",
+                "Office": "M/o Personnel, Public Grievances & Pensions",
+                "Organisation": "Centre",
+                "Field_of_Experience": "Personnel Training",
+                "Category_of_Experience": "Personnel and General Administration",
+                "Start_Date": "1986-07-01",
+                "End_Date": "1988-02-01"
+            },
+
+        // Load and parse data
+        async function loadData() {
+            try {
+                let jsonData;
+                
+                // Try embedded data first
+                if (EMBEDDED_DATA !== null) {
+                    jsonData = 'ias.json';
+                } else {
+                    // Fallback to external file
+                    const response = await fetch('paste.txt');
+                    const text = await response.text();
+                    jsonData = JSON.parse(text);
+                }
+                
+                bureaucratsData = Object.entries(jsonData).map(([id, data]) => ({
+                    id,
+                    ...data
+                }));
+                
+                filteredData = [...bureaucratsData];
+                initializeDashboard();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" style="text-align:center;color:red;">Error loading data. Please paste your JSON data in the EMBEDDED_DATA variable or ensure paste.txt is in the same directory.</td></tr>';
+            }
+        }
+
+        function initializeDashboard() {
+            populateFilters();
+            updateDashboard();
+            setupEventListeners();
+        }
+
+        function populateFilters() {
+            // Cadre filter
+            const cadres = [...new Set(bureaucratsData.map(b => b.Cadre))].sort();
+            const cadreFilter = document.getElementById('cadreFilter');
+            cadres.forEach(cadre => {
+                const option = document.createElement('option');
+                option.value = cadre;
+                option.textContent = cadre;
+                cadreFilter.appendChild(option);
+            });
+
+            // Domicile filter
+            const domiciles = [...new Set(bureaucratsData.map(b => b.Place_of_Domicile))].sort();
+            const domicileFilter = document.getElementById('domicileFilter');
+            domiciles.forEach(domicile => {
+                const option = document.createElement('option');
+                option.value = domicile;
+                option.textContent = domicile;
+                domicileFilter.appendChild(option);
+            });
+        }
+
+        function setupEventListeners() {
+            document.getElementById('cadreFilter').addEventListener('change', applyFilters);
+            document.getElementById('levelFilter').addEventListener('change', applyFilters);
+            document.getElementById('genderFilter').addEventListener('change', applyFilters);
+            document.getElementById('domicileFilter').addEventListener('change', applyFilters);
+            document.getElementById('searchBox').addEventListener('input', applySearch);
+        }
+
+        function applyFilters() {
+            const cadre = document.getElementById('cadreFilter').value;
+            const level = document.getElementById('levelFilter').value;
+            const gender = document.getElementById('genderFilter').value;
+            const domicile = document.getElementById('domicileFilter').value;
+
+            filteredData = bureaucratsData.filter(b => {
+                if (cadre && b.Cadre !== cadre) return false;
+                if (gender && b.Gender !== gender) return false;
+                if (domicile && b.Place_of_Domicile !== domicile) return false;
+                if (level) {
+                    const hasLevel = b.Experience && b.Experience.some(exp => exp.Level === level);
+                    if (!hasLevel) return false;
+                }
+                return true;
+            });
+
+            updateDashboard();
+        }
+
+        function applySearch() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            updateTable(searchTerm);
+        }
+
+        function updateDashboard() {
+            updateStats();
+            updateCharts();
+            updateTable();
+        }
+
+        function updateStats() {
+            document.getElementById('totalOfficers').textContent = filteredData.length;
+            
+            const uniqueCadres = new Set(filteredData.map(b => b.Cadre));
+            document.getElementById('totalCadres').textContent = uniqueCadres.size;
+            
+            const secretaryLevel = filteredData.filter(b => 
+                b.Experience && b.Experience.some(exp => exp.Level === 'Secretary')
+            );
+            document.getElementById('secretaryCount').textContent = secretaryLevel.length;
+            
+            const females = filteredData.filter(b => b.Gender === 'Female');
+            document.getElementById('femaleCount').textContent = females.length;
+            
+            const avgYears = calculateAverageExperience(filteredData);
+            document.getElementById('avgExperience').textContent = avgYears;
+        }
+
+        function calculateAverageExperience(data) {
+            let totalYears = 0;
+            let count = 0;
+            
+            data.forEach(b => {
+                if (b.Date_of_Joining && b.Retirement_Reason) {
+                    const joinYear = new Date(b.Date_of_Joining).getFullYear();
+                    const currentYear = 2026;
+                    const years = currentYear - joinYear;
+                    if (years > 0 && years < 50) {
+                        totalYears += years;
+                        count++;
+                    }
+                }
+            });
+            
+            return count > 0 ? Math.round(totalYears / count) : 0;
+        }
+
+        function updateCharts() {
+            renderCadreChart();
+            renderEducationChart();
+            renderExperienceChart();
+            renderDomicileChart();
+            renderLevelChart();
+            renderGenderChart();
+        }
+
+        function renderBarChart(containerId, data, maxItems = 10) {
+            const container = document.getElementById(containerId);
+            const sortedData = Object.entries(data)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, maxItems);
+            
+            const maxValue = Math.max(...sortedData.map(d => d[1]));
+            
+            let html = '';
+            sortedData.forEach(([label, value]) => {
+                const percentage = (value / maxValue) * 100;
+                html += `
+                    <div class="bar">
+                        <div class="bar-label">${label}</div>
+                        <div class="bar-track">
+                            <div class="bar-fill" style="width: ${percentage}%">
+                                <span class="bar-value">${value}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function renderCadreChart() {
+            const cadreCount = {};
+            filteredData.forEach(b => {
+                cadreCount[b.Cadre] = (cadreCount[b.Cadre] || 0) + 1;
+            });
+            renderBarChart('cadreChart', cadreCount);
+        }
+
+        function renderEducationChart() {
+            const eduCount = {};
+            filteredData.forEach(b => {
+                if (b.Education && Array.isArray(b.Education)) {
+                    b.Education.forEach(edu => {
+                        if (edu.Category_of_Subject) {
+                            eduCount[edu.Category_of_Subject] = (eduCount[edu.Category_of_Subject] || 0) + 1;
+                        }
+                    });
+                }
+            });
+            renderBarChart('educationChart', eduCount);
+        }
+
+        function renderExperienceChart() {
+            const expCount = {};
+            filteredData.forEach(b => {
+                if (b.Experience && Array.isArray(b.Experience)) {
+                    b.Experience.forEach(exp => {
+                        if (exp.Category_of_Experience) {
+                            expCount[exp.Category_of_Experience] = (expCount[exp.Category_of_Experience] || 0) + 1;
+                        }
+                    });
+                }
+            });
+            renderBarChart('experienceChart', expCount);
+        }
+
+        function renderDomicileChart() {
+            const domCount = {};
+            filteredData.forEach(b => {
+                domCount[b.Place_of_Domicile] = (domCount[b.Place_of_Domicile] || 0) + 1;
+            });
+            renderBarChart('domicileChart', domCount);
+        }
+
+        function renderLevelChart() {
+            const levelCount = {};
+            filteredData.forEach(b => {
+                if (b.Experience && Array.isArray(b.Experience)) {
+                    const levels = new Set(b.Experience.map(exp => exp.Level).filter(l => l && l !== 'N.A.'));
+                    levels.forEach(level => {
+                        levelCount[level] = (levelCount[level] || 0) + 1;
+                    });
+                }
+            });
+            renderBarChart('levelChart', levelCount);
+        }
+
+        function renderGenderChart() {
+            const genderCount = {};
+            filteredData.forEach(b => {
+                genderCount[b.Gender] = (genderCount[b.Gender] || 0) + 1;
+            });
+            renderBarChart('genderChart', genderCount, 5);
+        }
+
+        function getHighestLevel(experience) {
+            if (!experience || !Array.isArray(experience)) return 'N/A';
+            
+            const levelHierarchy = {
+                'Secretary': 5,
+                'Secretary Equivalent': 4,
+                'Additional Secretary': 3,
+                'Joint Secretary': 2
+            };
+            
+            let highestLevel = 'N/A';
+            let highestRank = 0;
+            
+            experience.forEach(exp => {
+                const rank = levelHierarchy[exp.Level] || 0;
+                if (rank > highestRank) {
+                    highestRank = rank;
+                    highestLevel = exp.Level;
+                }
+            });
+            
+            return highestLevel;
+        }
+
+        function getEducationSummary(education) {
+            if (!education || !Array.isArray(education) || education.length === 0) return 'N/A';
+            const uniqueSubjects = [...new Set(education.map(e => e.Subject).filter(s => s))];
+            return uniqueSubjects.slice(0, 2).join(', ');
+        }
+
+        function updateTable(searchTerm = '') {
+            const tbody = document.getElementById('tableBody');
+            let displayData = filteredData;
+            
+            if (searchTerm) {
+                displayData = filteredData.filter(b => {
+                    const searchIn = `${b.Name} ${b.Cadre} ${getHighestLevel(b.Experience)}`.toLowerCase();
+                    return searchIn.includes(searchTerm);
+                });
+            }
+            
+            if (displayData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--color-text-secondary);">No records found</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            displayData.forEach(b => {
+                const level = getHighestLevel(b.Experience);
+                const education = getEducationSummary(b.Education);
+                const levelBadge = level === 'Secretary' ? 'badge-success' : level === 'Additional Secretary' ? 'badge-warning' : '';
+                
+                html += `
+                    <tr>
+                        <td><strong>${b.Name}</strong></td>
+                        <td>${b.Cadre}</td>
+                        <td><span class="badge ${levelBadge}">${level}</span></td>
+                        <td>${b.Gender}</td>
+                        <td>${b.Place_of_Domicile}</td>
+                        <td>${education}</td>
+                        <td>${b.Languages_Known || 'N/A'}</td>
+                        <td>${b.Allotment_Year}</td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        // Initialize on load
+        loadData();
+    </script>
+</body>
+</html>
+

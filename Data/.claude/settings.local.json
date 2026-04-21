@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/sakal/Desktop/sakal data/Bureaucrats/**)",
+      "Bash(python3 -c ':*)",
+      "Bash(gh auth:*)",
+      "Bash(where gh:*)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" --version)",
+      "Bash(\"/c/Program Files \\(x86\\)/GitHub CLI/gh.exe\" --version)",
+      "Bash(cmd //c \"where gh\")",
+      "Read(//c/Program Files/**)",
+      "Read(//c/Users/sakal/AppData/Local/**)",
+      "Read(//c/Users/sakal/scoop/shims/**)",
+      "Bash(cmd //c \"gh --version\")",
+      "Bash(cmd //c \"where gh.exe\")",
+      "Bash(powershell -Command \"Get-Command gh -ErrorAction SilentlyContinue | Select-Object Source\")",
+      "WebSearch",
+      "mcp__Claude_Preview__preview_start"
+    ]
+  }
+}
